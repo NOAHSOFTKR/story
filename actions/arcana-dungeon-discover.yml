@@ -1,0 +1,23 @@
+id: arcana-dungeon-discover
+name: "[아르카나] 기괴한 진동"
+enable: true
+nextStory: arcana-first-battle
+trigger:
+  id: dungeon-discover
+  name: Dungeon discovery trigger
+  enable: true
+  event: block_break
+  description: 플레이어가 던전 입구(기괴한 문양의 벽돌)를 발견했을 때 발동
+
+actions:
+  message:
+    id: message-main
+    enable: true
+    content: "&c[아르카나 - 조력자 바론] &f그 문을 열지 마라, 애송이! 겉보기엔 달콤한 냄새가 나겠지만, 저 안에는 &c빛에 굶주려 미쳐버린 끔찍한 장난감들&f이 득실거리니까."
+    toSend: triggeredPlayer
+  
+  commandsEnable: true
+  commands:
+  - "title {player} subtitle {\"text\":\"&c기묘하고 늘어지는 오르골 소리가 들립니다...\",\"color\":\"red\"}"
+  - "execute at {player} run particle minecraft:soul_fire_flame ~ ~ ~ 0.5 0.5 0.5 1 15 force"
+  - "playsound minecraft:ambient.cave player {player} ~ ~ ~ 1 0.7"

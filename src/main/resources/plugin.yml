@@ -8,4 +8,4 @@ softdepend:
 commands:
   story:
     description: Story loader and runtime controls
-    usage: /story <list|reload|restart|enable|disable|trigger|action>
+    usage: /story <list|reload|restart|progress|quest|enable|disable|trigger|action>

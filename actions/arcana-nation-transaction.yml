@@ -1,0 +1,19 @@
+id: arcana-nation-transaction
+name: "[아르카나] 연맹의 재정"
+enable: true
+nextStory: null
+trigger:
+  id: nation-transaction
+  name: Nation tax/transaction
+  enable: true
+  event: towny_nation_transaction
+  description: 국가의 세금이나 거래가 발생했을 때 발동
+
+actions:
+  message:
+    id: message-tax
+    enable: true
+    content: "&6[아르카나] &f연맹의 자금이 변동했습니다. 국가의 번영은 모든 주민의 힘으로부터 비롯됩니다."
+    toSend: triggeredPlayer
+  
+  commandsEnable: false
