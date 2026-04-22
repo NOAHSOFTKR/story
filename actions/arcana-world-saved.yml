@@ -1,0 +1,33 @@
+id: arcana-world-saved
+name: "[아르카나] 새로운 시대의 시작"
+enable: true
+nextStory: null
+trigger:
+  id: world-saved
+  name: World saved achievement
+  enable: true
+  event: custom_achievement_unlock  # 특정 업적 달성
+  description: 플레이어가 세계 구원 업적을 달성했을 때 발동
+
+actions:
+  message:
+    id: message-new-era
+    enable: true
+    content: "&a[아르카나] &f당신의 진정한 이름, &6{player}&f, 당신은 이 세계의 구원자입니다. 이제부터는 당신이 이 시대의 지도자입니다. 당신의 국가를 더욱 강하게, 더욱 아름답게 만들어 가세요."
+    toSend: triggeredPlayer
+  
+  message-global:
+    id: message-global
+    enable: true
+    content: "&a&l[축하합니다!] &f&l{player}&f가 이 세계를 구원했습니다! 새로운 시대가 시작되었습니다!"
+    toSend: allPlayers
+  
+  commandsEnable: true
+  commands:
+  - "give {player} arcana:dragon_set_helm 1"
+  - "give {player} arcana:dragon_set_chestplate 1"
+  - "give {player} arcana:dragon_set_leggings 1"
+  - "give {player} arcana:dragon_set_boots 1"
+  - "title {player} title {\"text\":\"축하합니다!\",\"color\":\"green\"}"
+  - "subtitle {player} subtitle {\"text\":\"새로운 시대를 이끌어 가세요.\",\"color\":\"blue\"}"
+  - "execute at {player} run firework launch ~ ~ ~ 1"

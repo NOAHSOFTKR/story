@@ -1,0 +1,22 @@
+id: arcana-prologue-discovery
+name: "[아르카나] 운명의 발견"
+enable: true
+nextStory: arcana-prologue-exile
+trigger:
+  id: luminite-pickup
+  name: Luminite Ore Pickup
+  enable: true
+  event: itemsadder_item_pickup
+  description: 플레이어가 루미네이트 원석을 처음 주웠을 때 발동
+
+actions:
+  message:
+    id: message-discovery
+    enable: true
+    content: "&f[시스템] &i이 따뜻하고 매혹적인 빛... 왠지 다른 사람에게 들키면 안 될 것 같다."
+    toSend: triggeredPlayer
+  
+  commandsEnable: true
+  commands:
+  - "title {player} actionbar {\"text\":\"&6영롱하게 빛나는 루미네이트를 발견했습니다.\",\"color\":\"gold\"}"
+  - "playsound minecraft:block.amethyst_block.hit player {player} ~ ~ ~ 1 1.2"

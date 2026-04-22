@@ -1,0 +1,30 @@
+id: arcana-town-create
+name: "[아르카나] 개척지의 탄생"
+enable: true
+nextStory: arcana-town-expand
+trigger:
+  id: town-create
+  name: Town creation event
+  enable: true
+  event: towny_town_create
+  description: 플레이어가 마을을 생성했을 때 발동
+
+actions:
+  message:
+    id: message-main
+    enable: true
+    content: "&5[아르카나 - 조력자 잭] &f이제 입에 풀칠은 할 줄 아는군. 하지만 밤마다 들려오는 '그것'들의 울음소리를 피하려면 텐트로는 부족해. 네 땅을 사고, 네 마을을 세웠으니 다행이다."
+    toSend: triggeredPlayer
+  
+  message-announcement:
+    id: message-announce
+    enable: true
+    content: "&5[아르카나] &f새로운 개척지 '&6{town}&r&5'이 탄생했습니다! 개척자: &6{player}"
+    toSend: allPlayers
+  
+  commandsEnable: true
+  commands:
+  - "give {player} arcana:welcome_letter 1"
+  - "title {player} title {\"text\":\"개척지 건설 성공!\",\"color\":\"gold\"}"
+  - "title {player} subtitle {\"text\":\"동쪽 협곡의 조력자 B를 찾아보게.\",\"color\":\"yellow\"}"
+  - "playsound minecraft:entity.player.levelup player {player} ~ ~ ~ 1 1"

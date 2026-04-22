@@ -1,0 +1,54 @@
+id: arcana-towny
+name: Arcana Towny Guide
+enable: true
+previousStory:
+nextStory: arcana-towny-2
+
+quest:
+  enable: true
+  name: Founding a Town
+  objectives:
+    - id: create-town
+      name: Create your town
+      description: Create a Towny town for the first time.
+      target: 1
+
+triggers:
+  - id: town-create
+    name: Town creation
+    enable: true
+    event: towny_town_create
+    description: Runs when the player creates a town.
+    objectiveId: create-town
+    amount: 1
+    actions:
+      message:
+        id: message-main
+        enable: true
+        content: "&a[Story] {player} has started the town story for {town}"
+        toSend: triggeredPlayer
+      message-announcement:
+        id: message-announce
+        enable: true
+        content: "&d[Story] A new town named &6{town}&d was created by &e{player}&d."
+        toSend: allPlayers
+      commandsEnable: true
+      commands:
+        - "say arcana-towny trigger fired by {player} in town {town}"
+
+  - id: story-done
+    name: Story completion
+    enable: true
+    event: story_done
+    description: Runs when all internal quest objectives are completed.
+    actions:
+      message:
+        id: story-complete-message
+        enable: true
+        content: "&6[Story] {player} completed {storyName}."
+        toSend: triggeredPlayer
+      message-broadcast:
+        id: story-complete-broadcast
+        enable: true
+        content: "&e[Story] {player} completed {storyName}. Next story: {nextStory}"
+        toSend: allPlayers
