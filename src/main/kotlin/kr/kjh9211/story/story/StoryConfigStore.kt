@@ -213,6 +213,8 @@ class StoryConfigStore(
             event = event,
             objectiveId = triggerSection.getString("objectiveId")?.takeIf { it.isNotBlank() },
             progressAmount = triggerSection.getInt("amount", 1).coerceAtLeast(1),
+            blockName = triggerSection.getString("block")?.takeIf { it.isNotBlank() },
+            iaItemId = (triggerSection.getString("itemsadder") ?: triggerSection.getString("ia"))?.takeIf { it.isNotBlank() },
             actions = loadActions(triggerSection, storyId, triggerId),
         )
     }

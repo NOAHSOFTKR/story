@@ -23,6 +23,24 @@ class StoryRuntime(
             .asSequence()
             .filter { it.enabled }
             .filter { it.event.equals(eventKey, ignoreCase = true) }
+            .filter { trigger ->
+                val requiredBlock = trigger.blockName
+                val requiredIa = trigger.iaItemId
+                
+                if (requiredBlock == null && requiredIa == null) return@filter true
+                
+                if (requiredIa != null) {
+                    val actualIa = context.placeholders["item"] ?: context.placeholders["ia_item"]
+                    if (actualIa?.equals(requiredIa, ignoreCase = true) == true) return@filter true
+                }
+                
+                if (requiredBlock != null) {
+                    val actualBlock = context.placeholders["block"]
+                    if (actualBlock?.equals(requiredBlock, ignoreCase = true) == true) return@filter true
+                }
+                
+                false
+            }
             .forEach { trigger -> executeTrigger(story, trigger, context) }
     }
 
@@ -32,6 +50,24 @@ class StoryRuntime(
             .asSequence()
             .filter { it.enabled }
             .filter { it.event.equals(eventKey, ignoreCase = true) }
+            .filter { trigger ->
+                val requiredBlock = trigger.blockName
+                val requiredIa = trigger.iaItemId
+                
+                if (requiredBlock == null && requiredIa == null) return@filter true
+                
+                if (requiredIa != null) {
+                    val actualIa = context.placeholders["item"] ?: context.placeholders["ia_item"]
+                    if (actualIa?.equals(requiredIa, ignoreCase = true) == true) return@filter true
+                }
+                
+                if (requiredBlock != null) {
+                    val actualBlock = context.placeholders["block"]
+                    if (actualBlock?.equals(requiredBlock, ignoreCase = true) == true) return@filter true
+                }
+                
+                false
+            }
             .forEach { trigger -> executeTrigger(story, trigger, context) }
     }
 
