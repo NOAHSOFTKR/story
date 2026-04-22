@@ -1,0 +1,36 @@
+id: arcana-nation-create
+name: "[아르카나] 위대한 연맹의 건국"
+enable: true
+nextStory: arcana-dungeon-discover
+trigger:
+  id: nation-create
+  name: Nation creation event
+  enable: true
+  event: towny_nation_create
+  description: 플레이어가 국가(연맹)를 생성했을 때 발동
+
+actions:
+  message:
+    id: message-main
+    enable: true
+    content: "&6[아르카나 - 조력자 잭] &f드디어 해낸군! 이제 넌 단순한 개척자가 아니야. 국가를 이끄는 지도자가 된 거지."
+    toSend: triggeredPlayer
+  
+  message-announcement:
+    id: message-announce
+    enable: true
+    content: "&6[아르카나] &l위대한 연맹 '&e{nation}&r&6'이 탄생했습니다! &f인류의 저항이 시작된다!"
+    toSend: allPlayers
+  
+  message-warning:
+    id: message-warning
+    enable: true
+    content: "&c[경고] &f당신의 국가가 클수록, 더 끔찍한 것들이 당신을 노릴 것입니다. 준비하세요."
+    toSend: triggeredPlayer
+  
+  commandsEnable: true
+  commands:
+  - "give {player} arcana:nation_charter 1"
+  - "title {player} title {\"text\":\"위대한 연맹의 지도자!\",\"color\":\"gold\"}"
+  - "subtitle {player} subtitle {\"text\":\"이제부터 당신의 선택이 세계를 바꿀 것입니다.\",\"color\":\"yellow\"}"
+  - "playsound minecraft:entity.dragon.growl player {player} ~ ~ ~ 1 0.8"
