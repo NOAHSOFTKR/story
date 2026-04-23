@@ -75,11 +75,12 @@ class StoryCommand(
     // 1. 리스트 선언: MutableList를 사용하고 타입을 명시하세요.
     var defendEnabled = mutableListOf<DefendStatus>()
 
-    private fun handleDefendcheck(sender: CommandSender) {
+    private fun handleDefendcheck(sender: CommandSender): Boolean {
         val returntext = defendEnabled.joinToString("\n") { item ->
             "${item.name}: ${if (item.enabled) "enabled" else "disabled"}"
         }
         sender.sendMessage(returntext)
+        return true
     }
 
     private fun topLevelSecondArgs(registry: StoryRegistry, args: Array<out String>): MutableList<String> {
