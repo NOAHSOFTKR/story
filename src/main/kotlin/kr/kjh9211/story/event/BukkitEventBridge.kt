@@ -4,14 +4,13 @@ import kr.kjh9211.story.Story
 import kr.kjh9211.story.story.StoryRuntime
 import org.bukkit.Bukkit
 import org.bukkit.block.Container
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.InventoryType
+import org.bukkit.event.inventory.InventoryType
 
 class BukkitEventBridge(
     private val plugin: Story,
