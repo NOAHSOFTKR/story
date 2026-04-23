@@ -10,38 +10,15 @@ class StoryRuntime(
     private val setCurrentStoryId: (UUID, String?) -> Unit,
 ) {
     fun runTriggerByEvent(eventKey: String, context: StoryExecutionContext) {
-        val player = context.sender as? Player ?: return
-        val registry = storyRegistryProvider()
-        val currentStoryId = currentStoryIdProvider(player.uniqueId)
-            ?: registry.orderedStories().firstOrNull()?.id
-            ?: return
-
-        val story = registry.findStory(currentStoryId) ?: return
-        if (!story.enabled) return
-
-        story.triggers
+        storyRegistryProvider().stories()
             .asSequence()
             .filter { it.enabled }
-            .filter { it.event.equals(eventKey, ignoreCase = true) }
-            .filter { trigger ->
-                val requiredBlock = trigger.blockName
-                val requiredIa = trigger.iaItemId
-                
-                if (requiredBlock == null && requiredIa == null) return@filter true
-                
-                if (requiredIa != null) {
-                    val actualIa = context.placeholders["item"] ?: context.placeholders["ia_item"]
-                    if (actualIa?.equals(requiredIa, ignoreCase = true) == true) return@filter true
-                }
-                
-                if (requiredBlock != null) {
-                    val actualBlock = context.placeholders["block"]
-                    if (actualBlock?.equals(requiredBlock, ignoreCase = true) == true) return@filter true
-                }
-                
-                false
+            .flatMap { story ->
+                story.triggers.asSequence().map { trigger -> story to trigger }
             }
-            .forEach { trigger -> executeTrigger(story, trigger, context) }
+            .filter { (_, trigger) -> trigger.enabled }
+            .filter { (_, trigger) -> trigger.event.equals(eventKey, ignoreCase = true) }
+            .forEach { (story, trigger) -> executeTrigger(story, trigger, context) }
     }
 
     fun runTriggerByStoryEvent(storyId: String, eventKey: String, context: StoryExecutionContext) {
@@ -50,24 +27,6 @@ class StoryRuntime(
             .asSequence()
             .filter { it.enabled }
             .filter { it.event.equals(eventKey, ignoreCase = true) }
-            .filter { trigger ->
-                val requiredBlock = trigger.blockName
-                val requiredIa = trigger.iaItemId
-                
-                if (requiredBlock == null && requiredIa == null) return@filter true
-                
-                if (requiredIa != null) {
-                    val actualIa = context.placeholders["item"] ?: context.placeholders["ia_item"]
-                    if (actualIa?.equals(requiredIa, ignoreCase = true) == true) return@filter true
-                }
-                
-                if (requiredBlock != null) {
-                    val actualBlock = context.placeholders["block"]
-                    if (actualBlock?.equals(requiredBlock, ignoreCase = true) == true) return@filter true
-                }
-                
-                false
-            }
             .forEach { trigger -> executeTrigger(story, trigger, context) }
     }
 

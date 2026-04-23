@@ -11,7 +11,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryType
+import org.bukkit.inventory.InventoryType
 
 class BukkitEventBridge(
     private val plugin: Story,
@@ -24,29 +24,15 @@ class BukkitEventBridge(
 
     @EventHandler(ignoreCancelled = true)
     fun onBlockBreak(event: BlockBreakEvent) {
-        val placeholders = mutableMapOf(
-            "player" to event.player.name,
-            "block" to event.block.type.name,
-        )
-
-        // ItemsAdder 커스텀 블록 체크
-        try {
-            val customBlockClass = Class.forName("dev.lone.itemsadder.api.CustomBlock")
-            val byBlock = customBlockClass.getMethod("byBlock", org.bukkit.block.Block::class.java)
-            val customBlock = byBlock.invoke(null, event.block)
-            if (customBlock != null) {
-                val getNamespacedID = customBlock.javaClass.getMethod("getNamespacedID")
-                val iaId = getNamespacedID.invoke(customBlock)?.toString()
-                if (iaId != null) {
-                    placeholders["item"] = iaId
-                    placeholders["ia_item"] = iaId
-                }
-            }
-        } catch (_: Exception) { }
-
         storyRuntime.runTriggerByEvent(
             "block_break",
-            EventContextSupport.createContext(event.player, placeholders),
+            EventContextSupport.createContext(
+                event.player,
+                mapOf(
+                    "player" to event.player.name,
+                    "block" to event.block.type.name,
+                ),
+            ),
         )
     }
 

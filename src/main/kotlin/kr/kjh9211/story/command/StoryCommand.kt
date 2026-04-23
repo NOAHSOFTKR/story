@@ -59,7 +59,7 @@ class StoryCommand(
         alias: String,
         args: Array<out String>,
     ): MutableList<String> {
-        val registry = try { storyRegistryProvider() } catch (e: Exception) { null }
+        val registry = storyRegistryProvider()
         return when (args.size) {
             1 -> complete(args[0], "list", "reload", "restart", "progress", "quest", "enable", "disable", "trigger", "action")
             2 -> topLevelSecondArgs(registry, args)
@@ -70,8 +70,7 @@ class StoryCommand(
         }
     }
 
-    private fun topLevelSecondArgs(registry: StoryRegistry?, args: Array<out String>): MutableList<String> {
-        if (registry == null) return mutableListOf()
+    private fun topLevelSecondArgs(registry: StoryRegistry, args: Array<out String>): MutableList<String> {
         return when (args[0].lowercase()) {
             "enable" -> complete(args[1], registry.stories().filter { !it.enabled }.map { it.id })
             "disable" -> complete(args[1], registry.stories().filter { it.enabled }.map { it.id })
@@ -83,8 +82,7 @@ class StoryCommand(
         }
     }
 
-    private fun thirdArgs(registry: StoryRegistry?, args: Array<out String>): MutableList<String> {
-        if (registry == null) return mutableListOf()
+    private fun thirdArgs(registry: StoryRegistry, args: Array<out String>): MutableList<String> {
         return when (args[0].lowercase()) {
             "progress" -> if (args[1].equals("set", ignoreCase = true)) {
                 complete(args[2], registry.storyIds())
@@ -103,8 +101,7 @@ class StoryCommand(
         }
     }
 
-    private fun fourthArgs(registry: StoryRegistry?, args: Array<out String>): MutableList<String> {
-        if (registry == null) return mutableListOf()
+    private fun fourthArgs(registry: StoryRegistry, args: Array<out String>): MutableList<String> {
         return when (args[0].lowercase()) {
             "trigger" -> {
                 val story = registry.findStory(args[2]) ?: return mutableListOf()
@@ -125,8 +122,8 @@ class StoryCommand(
         }
     }
 
-    private fun fifthArgs(registry: StoryRegistry?, args: Array<out String>): MutableList<String> {
-        if (registry == null || !args[0].equals("action", ignoreCase = true)) {
+    private fun fifthArgs(registry: StoryRegistry, args: Array<out String>): MutableList<String> {
+        if (!args[0].equals("action", ignoreCase = true)) {
             return mutableListOf()
         }
 

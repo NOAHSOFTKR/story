@@ -31,11 +31,6 @@ class Story : JavaPlugin() {
 
         storyConfigStore = StoryConfigStore(this)
         storyProgressStore = StoryProgressStore(this)
-        storyProgressStore.load()
-
-        // Initialize storyRegistry first to avoid UninitializedPropertyAccessException in bridges
-        storyRegistry = storyConfigStore.loadAll()
-
         storyRuntime = StoryRuntime(
             storyRegistryProvider = { storyRegistry },
             progressStore = storyProgressStore,
@@ -47,6 +42,7 @@ class Story : JavaPlugin() {
         bukkitEventBridge = BukkitEventBridge(this, storyRuntime)
         itemsAdderEventBridge = ItemsAdderEventBridge(this, storyRuntime)
         pluginEventBridge = PluginEventBridge(this, storyRuntime)
+        reloadStories()
 
         val storyCommand = StoryCommand(
             storyRegistryProvider = { storyRegistry },
@@ -72,14 +68,9 @@ class Story : JavaPlugin() {
         itemsAdderEventBridge.registerIfAvailable()
         pluginEventBridge.register()
         townyEventBridge.registerIfAvailable()
-
-        logger.info("Loaded ${storyRegistry.stories().size} stories.")
     }
 
     override fun onDisable() {
-        if (::storyProgressStore.isInitialized) {
-            storyProgressStore.save()
-        }
         if (::placeholderBridge.isInitialized) {
             placeholderBridge.close()
         }
@@ -87,17 +78,19 @@ class Story : JavaPlugin() {
 
     private fun reloadStories() {
         storyRegistry = storyConfigStore.loadAll()
+        ensureCurrentStory()
+        logger.info("Loaded ${storyRegistry.stories().size} stories from ${storyConfigStore.storiesDirectory().absolutePath}")
         placeholderBridge.refresh()
     }
 
     fun restartPlugin(): Boolean {
+        val pluginManager = Bukkit.getPluginManager()
         return try {
-            onDisable()
-            onEnable()
+            pluginManager.disablePlugin(this)
+            pluginManager.enablePlugin(this)
             true
         } catch (exception: Exception) {
             logger.severe("Failed to restart plugin: ${exception.message}")
-            exception.printStackTrace()
             false
         }
     }

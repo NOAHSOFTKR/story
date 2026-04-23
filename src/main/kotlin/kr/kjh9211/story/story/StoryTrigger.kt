@@ -10,8 +10,6 @@ data class StoryTrigger(
     val event: String,
     val objectiveId: String? = null,
     val progressAmount: Int = 1,
-    val blockName: String? = null,
-    val iaItemId: String? = null,
     val actions: List<StoryAction>,
 ) {
     fun execute(context: StoryExecutionContext) {

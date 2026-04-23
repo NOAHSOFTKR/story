@@ -44,36 +44,18 @@ class ItemsAdderEventBridge(
         )
     }
 
-    private var customStackClass: Class<*>? = null
-    private var byItemStack: java.lang.reflect.Method? = null
-    private var getNamespacedID: java.lang.reflect.Method? = null
-    private var getId: java.lang.reflect.Method? = null
-    private var itemsAdderChecked = false
-
     private fun resolveItemsAdderId(item: ItemStack?): String? {
         if (item == null || item.type.isAir) {
             return null
         }
 
-        if (!itemsAdderChecked) {
-            try {
-                customStackClass = Class.forName("dev.lone.itemsadder.api.CustomStack")
-                byItemStack = customStackClass?.getMethod("byItemStack", ItemStack::class.java)
-                getNamespacedID = customStackClass?.getMethod("getNamespacedID")
-                getId = customStackClass?.getMethod("getId")
-            } catch (_: Exception) {
-            }
-            itemsAdderChecked = true
-        }
-
-        val stackClass = customStackClass ?: return null
-        val byItem = byItemStack ?: return null
-
         return try {
-            val customStack = byItem.invoke(null, item) ?: return null
-            val nsId = getNamespacedID ?: getId
-            nsId?.invoke(customStack)?.toString()
-        } catch (_: Exception) {
+            val customStackClass = Class.forName("dev.lone.itemsadder.api.CustomStack")
+            val byItemStack = customStackClass.getMethod("byItemStack", ItemStack::class.java)
+            val customStack = byItemStack.invoke(null, item) ?: return null
+            EventContextSupport.invokeNoArg(customStack, "getNamespacedID")?.toString()
+                ?: EventContextSupport.invokeNoArg(customStack, "getId")?.toString()
+        } catch (_: ReflectiveOperationException) {
             null
         }
     }
