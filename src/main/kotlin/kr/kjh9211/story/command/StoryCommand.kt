@@ -1,5 +1,6 @@
 package kr.kjh9211.story.command
 
+import kr.kjh9211.story.DefendStatus
 import kr.kjh9211.story.StoryMoveDirection
 import kr.kjh9211.story.story.StoryAction
 import kr.kjh9211.story.story.StoryExecutionContext
@@ -46,11 +47,12 @@ class StoryCommand(
             "disable" -> handleStoryToggle(sender, args.getOrNull(1), false)
             "trigger" -> handleTriggerCommand(sender, args.drop(1), label)
             "action" -> handleActionCommand(sender, args.drop(1), label)
+            "defendcheck" -> handleDefendcheck(sender)
             else -> {
                 sendHelp(sender, label)
                 true
             }
-        }
+        } as Boolean
     }
 
     override fun onTabComplete(
@@ -68,6 +70,16 @@ class StoryCommand(
             5 -> fifthArgs(registry, args)
             else -> mutableListOf()
         }
+    }
+
+    // 1. 리스트 선언: MutableList를 사용하고 타입을 명시하세요.
+    var defendEnabled = mutableListOf<DefendStatus>()
+
+    private fun handleDefendcheck(sender: CommandSender) {
+        val returntext = defendEnabled.joinToString("\n") { item ->
+            "${item.name}: ${if (item.enabled) "enabled" else "disabled"}"
+        }
+        sender.sendMessage(returntext)
     }
 
     private fun topLevelSecondArgs(registry: StoryRegistry, args: Array<out String>): MutableList<String> {

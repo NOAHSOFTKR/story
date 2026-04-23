@@ -35,7 +35,7 @@ class StoryPlaceholderExpansion(
             currentStoryId?.let { storyId ->
                 val story = registry.findStory(storyId)
                 val quest = story?.quest?.takeIf { it.enabled }
-                if (story != null && quest != null && playerUuid != null) {
+                if (story != null && quest != null) {
                     val objectives = quest.objectives.map { objective ->
                         val current = storyProgressStore.objectiveProgress(playerUuid, story.id, objective.id)
                         current.coerceAtMost(objective.target) to objective.target
