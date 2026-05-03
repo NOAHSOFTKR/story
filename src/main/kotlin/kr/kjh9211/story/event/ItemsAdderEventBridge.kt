@@ -28,7 +28,7 @@ class ItemsAdderEventBridge(
     @EventHandler(ignoreCancelled = true)
     fun onCustomBlockBreak(event: CustomBlockBreakEvent) {
         val player = event.player
-        val blockId = event.customBlock.namespacedID
+        val blockId = event.namespacedID
         storyRuntime.runTriggerByEvent(
             "block_break",
             EventContextSupport.createContext(
