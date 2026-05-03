@@ -16,12 +16,18 @@ data class StoryTrigger(
     fun matchesContext(context: StoryExecutionContext): Boolean {
         if (blockFilter == null) return true
         val contextBlock = context.placeholders["block"] ?: return false
-        val normalizedFilter = if (':' in blockFilter) {
-            blockFilter.substringAfter(':').uppercase().replace('-', '_')
+        return if (':' in contextBlock) {
+            // ItemsAdder 네임스페이스 ID (예: "itemsadder:ruby_block"): 전체 비교
+            blockFilter.equals(contextBlock, ignoreCase = true)
         } else {
-            blockFilter.uppercase().replace('-', '_')
+            // 바닐라 Material 이름 (예: "STONE"): 필터의 네임스페이스 제거 후 비교
+            val normalizedFilter = if (':' in blockFilter) {
+                blockFilter.substringAfter(':').uppercase().replace('-', '_')
+            } else {
+                blockFilter.uppercase().replace('-', '_')
+            }
+            normalizedFilter == contextBlock.uppercase()
         }
-        return normalizedFilter == contextBlock.uppercase()
     }
 
     fun execute(context: StoryExecutionContext) {
