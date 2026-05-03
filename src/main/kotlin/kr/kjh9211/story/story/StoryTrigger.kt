@@ -12,30 +12,21 @@ data class StoryTrigger(
     val progressAmount: Int = 1,
     val actions: List<StoryAction>,
     val blockFilter: String? = null,
-    val itemFilter: String? = null,
 ) {
     fun matchesContext(context: StoryExecutionContext): Boolean {
-        if (blockFilter != null) {
-            val contextBlock = context.placeholders["block"] ?: return false
-            if (!matchesFilterValue(blockFilter, contextBlock)) return false
-        }
-        if (itemFilter != null) {
-            val contextItem = context.placeholders["item"] ?: return false
-            if (!matchesFilterValue(itemFilter, contextItem)) return false
-        }
-        return true
-    }
-
-    private fun matchesFilterValue(filter: String, contextValue: String): Boolean {
-        return if (':' in contextValue) {
-            filter.equals(contextValue, ignoreCase = true)
+        if (blockFilter == null) return true
+        val contextBlock = context.placeholders["block"] ?: return false
+        return if (':' in contextBlock) {
+            // ItemsAdder 네임스페이스 ID (예: "itemsadder:ruby_block"): 전체 비교
+            blockFilter.equals(contextBlock, ignoreCase = true)
         } else {
-            val normalized = if (':' in filter) {
-                filter.substringAfter(':').uppercase().replace('-', '_')
+            // 바닐라 Material 이름 (예: "STONE"): 필터의 네임스페이스 제거 후 비교
+            val normalizedFilter = if (':' in blockFilter) {
+                blockFilter.substringAfter(':').uppercase().replace('-', '_')
             } else {
-                filter.uppercase().replace('-', '_')
+                blockFilter.uppercase().replace('-', '_')
             }
-            normalized == contextValue.uppercase()
+            normalizedFilter == contextBlock.uppercase()
         }
     }
 
