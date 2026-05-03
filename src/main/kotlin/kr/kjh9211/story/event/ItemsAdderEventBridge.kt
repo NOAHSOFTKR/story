@@ -1,5 +1,6 @@
 package kr.kjh9211.story.event
 
+import dev.lone.itemsadder.api.Events.CustomBlockBreakEvent
 import kr.kjh9211.story.Story
 import kr.kjh9211.story.story.StoryRuntime
 import org.bukkit.Bukkit
@@ -22,6 +23,22 @@ class ItemsAdderEventBridge(
         }
 
         Bukkit.getPluginManager().registerEvents(this, plugin)
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun onCustomBlockBreak(event: CustomBlockBreakEvent) {
+        val player = event.player
+        val blockId = event.customBlock.namespacedID
+        storyRuntime.runTriggerByEvent(
+            "block_break",
+            EventContextSupport.createContext(
+                player,
+                mapOf(
+                    "player" to player.name,
+                    "block" to blockId,
+                ),
+            ),
+        )
     }
 
     @EventHandler(ignoreCancelled = true)

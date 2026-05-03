@@ -90,8 +90,15 @@ actions:
 - Optional.
 - Only applies to `block_break` events.
 - Filters the trigger to fire only when the specified block is broken.
-- Format: `namespace:name` (e.g. `minecraft:stone`, `minecraft:oak_log`) or plain material name (e.g. `STONE`).
+- Format: `namespace:name` (e.g. `minecraft:stone`, `minecraft:oak_log`, `itemsadder:ruby_block`) or plain material name (e.g. `STONE`).
 - If omitted, the trigger fires for any block break.
+
+`trigger.item`
+- Optional.
+- Only applies to `itemsadder_item_pickup` and `itemsadder_item_equip` events.
+- Filters the trigger to fire only when the specified item is involved.
+- Format: `namespace:name` (e.g. `itemsadder:ruby`).
+- If omitted, the trigger fires for any item.
 
 ## Actions Keys
 

@@ -215,6 +215,7 @@ class StoryConfigStore(
             progressAmount = triggerSection.getInt("amount", 1).coerceAtLeast(1),
             actions = loadActions(triggerSection, storyId, triggerId),
             blockFilter = triggerSection.getString("block")?.takeIf { it.isNotBlank() },
+            itemFilter = triggerSection.getString("item")?.takeIf { it.isNotBlank() },
         )
     }
 
