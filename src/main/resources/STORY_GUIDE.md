@@ -86,6 +86,13 @@ actions:
 - Optional.
 - Sent to the player when the trigger runs.
 
+`trigger.block`
+- Optional.
+- Only applies to `block_break` events.
+- Filters the trigger to fire only when the specified block is broken.
+- Format: `namespace:name` (e.g. `minecraft:stone`, `minecraft:oak_log`) or plain material name (e.g. `STONE`).
+- If omitted, the trigger fires for any block break.
+
 ## Actions Keys
 
 ### `actions.message`

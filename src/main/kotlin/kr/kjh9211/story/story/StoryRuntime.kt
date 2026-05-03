@@ -18,6 +18,7 @@ class StoryRuntime(
             }
             .filter { (_, trigger) -> trigger.enabled }
             .filter { (_, trigger) -> trigger.event.equals(eventKey, ignoreCase = true) }
+            .filter { (_, trigger) -> trigger.matchesContext(context) }
             .forEach { (story, trigger) -> executeTrigger(story, trigger, context) }
     }
 
