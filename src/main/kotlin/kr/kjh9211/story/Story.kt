@@ -27,7 +27,11 @@ class Story : JavaPlugin() {
     private lateinit var pluginEventBridge: PluginEventBridge
 
     override fun onEnable() {
-        saveResource("stories/example.yml", false)
+        try {
+            saveResource("stories/example.yml", false)
+        } catch (e: Exception) {
+            // 리소스가 없어도 무시하고 진행 (이미 파일이 있거나 빌드 시 누락된 경우)
+        }
 
         storyConfigStore = StoryConfigStore(this)
         storyProgressStore = StoryProgressStore(this)
