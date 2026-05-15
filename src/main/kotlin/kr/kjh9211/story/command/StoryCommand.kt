@@ -432,6 +432,7 @@ class StoryCommand(
         sender.sendMessage("${ChatColor.GRAY}- ${ChatColor.WHITE}/$label action list <storyId> <triggerId>")
         sender.sendMessage("${ChatColor.GRAY}- ${ChatColor.WHITE}/$label action enable <storyId> <triggerId> <actionId>")
         sender.sendMessage("${ChatColor.GRAY}- ${ChatColor.WHITE}/$label action disable <storyId> <triggerId> <actionId>")
+        sender.sendMessage("${ChatColor.GRAY}- ${ChatColor.WHITE}/$label defendcheck")
     }
 
     private fun sendTriggerHelp(sender: CommandSender, label: String) {

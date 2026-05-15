@@ -1,5 +1,5 @@
 name: story
-version: '2.2.1-hotfix'
+version: '2.2.1-hotfix-1'
 main: kr.kjh9211.story.Story
 api-version: '1.21'
 softdepend:

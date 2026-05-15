@@ -19,9 +19,22 @@ object EventContextSupport {
                 is Player -> return value
                 is CommandSender -> return value
                 else -> {
+                    // Try to find a player within the returned object
                     val player = invokeNoArg(value, "getPlayer")
-                    if (player is Player) {
-                        return player
+                    if (player is Player) return player
+
+                    // If it's a Resident or Mayor, it might have a getPlayer method
+                    // If it's a Town, it has a getMayor which then has a Resident
+                    val mayor = invokeNoArg(value, "getMayor")
+                    if (mayor != null) {
+                        val mayorPlayer = invokeNoArg(mayor, "getPlayer")
+                        if (mayorPlayer is Player) return mayorPlayer
+                    }
+
+                    val resident = invokeNoArg(value, "getResident")
+                    if (resident != null) {
+                        val residentPlayer = invokeNoArg(resident, "getPlayer")
+                        if (residentPlayer is Player) return residentPlayer
                     }
                 }
             }

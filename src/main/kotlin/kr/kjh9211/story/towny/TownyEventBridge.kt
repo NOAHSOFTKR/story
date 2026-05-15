@@ -53,19 +53,29 @@ class TownyEventBridge(
     }
 
     private fun resolveEventClass(className: String): Class<out Event>? {
-        return try {
-            val rawClass = Class.forName(className)
-            @Suppress("UNCHECKED_CAST")
-            rawClass as? Class<out Event>
-        } catch (_: ClassNotFoundException) {
-            plugin.logger.warning("Towny event class not found: $className")
-            null
+        val paths = listOf(
+            className,
+            className.replace(".event.", ".event.town."),
+            className.replace(".event.", ".event.nation."),
+            className.replace(".event.", ".event.economy."),
+        )
+
+        for (path in paths) {
+            try {
+                val rawClass = Class.forName(path)
+                @Suppress("UNCHECKED_CAST")
+                return rawClass as? Class<out Event>
+            } catch (_: ClassNotFoundException) {
+                continue
+            }
         }
+        plugin.logger.warning("Towny event class not found: $className")
+        return null
     }
 
     private fun handleTownyEvent(eventKey: String, event: Event) {
         try {
-            val sender = EventContextSupport.extractSenderFromMethods(event, "getPlayer", "getResident", "getMayor")
+            val sender = EventContextSupport.extractSenderFromMethods(event, "getPlayer", "getResident", "getMayor", "getTown")
             val townName = EventContextSupport.readName(EventContextSupport.invokeNoArg(event, "getTown"))
             val nationName = EventContextSupport.readName(EventContextSupport.invokeNoArg(event, "getNation"))
             storyRuntime.runTriggerByEvent(
