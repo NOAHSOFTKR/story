@@ -1,0 +1,28 @@
+id: arcana-first-battle
+name: "[아르카나] 첫 번째 전투"
+enable: true
+nextStory: arcana-sword-craft
+trigger:
+  id: first-battle
+  name: First boss fight
+  enable: true
+  event: mythicmobs_mob_death
+  description: 플레이어가 처음으로 기괴한 몹을 처치했을 때 발동
+
+actions:
+  message:
+    id: message-victory
+    enable: true
+    content: "&6[아르카나 - 조력자 바론] &f좋아... 살아남았군. 하지만 그렇고 그런 놈들로는 깊은 곳의 보스를 이길 수 없다. 평범한 강철로는 저 끔찍한 저주를 벨 수 없지."
+    toSend: triggeredPlayer
+  
+  message-announce:
+    id: message-announce
+    enable: true
+    content: "&5[아르카나] &f&l{player}&f가 기괴한 몬스터를 물리쳤습니다! 첫 승리를 축하합니다!"
+    toSend: allPlayers
+  
+  commandsEnable: true
+  commands:
+  - "give {player} arcana:tattered_material 3"
+  - "playsound minecraft:entity.player.levelup player {player} ~ ~ ~ 1 1.2"

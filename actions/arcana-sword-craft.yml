@@ -1,0 +1,29 @@
+id: arcana-sword-craft
+name: "[아르카나] 마법의 검 제작"
+enable: true
+nextStory: arcana-truth-discover
+trigger:
+  id: sword-craft
+  name: First weapon craft
+  enable: true
+  event: customcrafting_craft
+  description: 플레이어가 아이스 소드나 파이어 소드를 제작했을 때 발동
+
+actions:
+  message:
+    id: message-craft
+    enable: true
+    content: "&6[아르카나 - 조력자 바론] &f보아라... 이것이 얼어붙은 이성의 힘이자, &c타오르는 분노의 불꽃&f이다. 이제 진정한 사냥꾼이 될 수 있을 거야."
+    toSend: triggeredPlayer
+  
+  message-announce:
+    id: message-announce
+    enable: true
+    content: "&5[아르카나] &f&l{player}&f가 마법의 검을 완성했습니다! 이제 놈들의 저주를 벨 준비가 되었군요!"
+    toSend: allPlayers
+  
+  commandsEnable: true
+  commands:
+  - "title {player} title {\"text\":\"마법의 검을 얻었다!\",\"color\":\"aqua\"}"
+  - "title {player} subtitle {\"text\":\"얼음과 화염의 조화\",\"color\":\"red\"}"
+  - "playsound minecraft:entity.enderman.teleport player {player} ~ ~ ~ 1 1"

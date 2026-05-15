@@ -1,0 +1,30 @@
+id: arcana-luminite-equip
+name: "[아르카나] 빛의 힘을 담다"
+enable: true
+nextStory: arcana-final-boss
+trigger:
+  id: luminite-equip
+  name: Luminite armor equipped
+  enable: true
+  event: itemsadder_item_equip
+  description: 플레이어가 루미네이트 세트를 모두 착용했을 때 발동
+
+actions:
+  message:
+    id: message-equip
+    enable: true
+    content: "&b[아르카나 - 코델리아] &f훌륭해. 이제 놈들의 마법은 너에게 통하지 않을 거다. 하지만 촌장은 마을 지하 깊은 곳에 끔찍한 것을 숨겨두고 있어."
+    toSend: triggeredPlayer
+  
+  message-warning:
+    id: message-final
+    enable: true
+    content: "&c[최종 경고] &f네가 세운 국가의 힘을 모으고, 모든 것을 원래대로 되돌려 놔야 해. 우리의 고향이었던 그 거짓된 낙원으로 진격하라."
+    toSend: triggeredPlayer
+  
+  commandsEnable: true
+  commands:
+  - "title {player} title {\"text\":\"루미네이트 세트 완성!\",\"color\":\"aqua\"}"
+  - "subtitle {player} subtitle {\"text\":\"이제 당신은 세계를 변화시킬 준비가 되었다.\",\"color\":\"light_purple\"}"
+  - "execute at {player} run particle minecraft:glow ~ ~ ~ 0.5 0.5 0.5 1 20 force"
+  - "playsound minecraft:entity.ender_dragon.growl player {player} ~ ~ ~ 1 1"

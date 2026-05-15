@@ -1,0 +1,29 @@
+id: arcana-memory-restore
+name: "[아르카나] 기억의 해독"
+enable: true
+nextStory: arcana-luminite-equip
+trigger:
+  id: memory-restore
+  name: Memory restoration quest
+  enable: true
+  event: quests_quest_complete
+  description: 플레이어가 기억 해독 퀘스트를 완료했을 때 발동
+
+actions:
+  message:
+    id: message-memory
+    enable: true
+    content: "&5[아르카나 - 코델리아] &f이제 진실을 알았으니, 그 빛에 잡아먹히지 않고 다룰 자격이 생겼다. 놈들의 썩은 마법을 뚫으려면 순수한 루미네이트로 벼려낸 갑옷이 필요해."
+    toSend: triggeredPlayer
+  
+  message-truth-reveal:
+    id: message-reveal
+    enable: true
+    content: "&f[&c진실&f] 루미네이트는 단순한 광물이 아니야. 이 세계의 생명력 그 자체지. 촌장과 감시자들이 이 생명력을 독점해 가짜 낙원을 유지하고 있었던 거야."
+    toSend: triggeredPlayer
+  
+  commandsEnable: true
+  commands:
+  - "title {player} title {\"text\":\"기억의 해독 완료\",\"color\":\"light_purple\"}"
+  - "title {player} subtitle {\"text\":\"&k지직거리던텍스트&r가 해독되었습니다.\",\"color\":\"aqua\"}"
+  - "playsound minecraft:ui.toast.challenge_complete player {player} ~ ~ ~ 1 1"

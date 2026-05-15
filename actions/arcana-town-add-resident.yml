@@ -1,0 +1,27 @@
+id: arcana-town-add-resident
+name: "[아르카나] 동료의 가입"
+enable: true
+nextStory: arcana-nation-prepare
+trigger:
+  id: town-add-resident
+  name: Resident added to town
+  enable: true
+  event: towny_town_add_resident
+  description: 마을에 주민이 추가되었을 때 발동
+
+actions:
+  message:
+    id: message-main
+    enable: true
+    content: "&5[아르카나 - 조력자 잭] &f또 한 명의 동료가 모여드는군. 많을수록 좋지. 함께할 때, 우리는 더 강해진다."
+    toSend: triggeredPlayer
+  
+  message-resident:
+    id: message-resident
+    enable: true
+    content: "&5[아르카나] &f신규 주민 &6{resident_name}&f이 마을 '&6{town}&f'에 가입했습니다!"
+    toSend: allPlayers
+  
+  commandsEnable: true
+  commands:
+  - "execute at {player} run particle minecraft:heart ~ ~ ~ 0.3 0.3 0.3 1 5 force"

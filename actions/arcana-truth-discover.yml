@@ -1,0 +1,23 @@
+id: arcana-truth-discover
+name: "[아르카나] 기억의 파편"
+enable: true
+nextStory: arcana-memory-restore
+trigger:
+  id: truth-discover
+  name: Story truth revelation
+  enable: true
+  event: mythicmobs_mob_death
+  description: 플레이어가 던전 보스를 처치했을 때 발동
+
+actions:
+  message:
+    id: message-truth
+    enable: true
+    content: "&6[아르카나 - 조력자 바론] &f이 괴물들은 원래 평범한 동물이었어. '그곳'의 놈들이 루미네이트의 에너지를 마구잡이로 뽑아 쓰면서 생긴 부작용이지. 더 깊은 진실을 알고 싶다면... 북쪽 빙산의 &e코델리아&f를 찾아가 봐."
+    toSend: triggeredPlayer
+  
+  commandsEnable: true
+  commands:
+  - "give {player} arcana:corrupted_luminite 5"
+  - "title {player} title {\"text\":\"기록자 코델리아를 찾아라\",\"color\":\"yellow\"}"
+  - "execute at {player} run particle minecraft:witch ~ ~ ~ 0.3 0.3 0.3 1 10 force"
