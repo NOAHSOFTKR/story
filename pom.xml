@@ -122,5 +122,11 @@
             <version>4.0.10</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>kr.kjh9211</groupId>
+            <artifactId>cutthin</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
