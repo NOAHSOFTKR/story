@@ -23,11 +23,21 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 2. Maven 빌드
+      # 2. cutthin 의존성 로컬 Maven 저장소에 설치
+      - name: Install cutthin dependency
+        run: |
+          mvn install:install-file \
+            -Dfile=libs/kr/kjh9211/cutthin/1.0.0/cutthin-1.0.0.jar \
+            -DgroupId=kr.kjh9211 \
+            -DartifactId=cutthin \
+            -Dversion=1.0.0 \
+            -Dpackaging=jar
+
+      # 3. Maven 빌드
       - name: Build Plugin
         run: mvn clean package -DskipTests
 
-      # 3. Release에 올릴 파일 정리
+      # 4. Release에 올릴 파일 정리
       # 마인크래프트 플러그인은 보통 하나만 생성되므로 target/*.jar를 찾습니다.
       - name: Prepare Artifact
         id: artifact
@@ -37,7 +47,7 @@ jobs:
           echo "PLUGIN_PATH=$PLUGIN_FILE" >> $GITHUB_ENV
           echo "Found Plugin: $PLUGIN_FILE"
 
-      # 4. GitHub Release 생성 및 파일 업로드
+      # 5. GitHub Release 생성 및 파일 업로드
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
