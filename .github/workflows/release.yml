@@ -23,29 +23,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 2. cutthin 의존성 수동 설치 (Maven 저장소에 없는 로컬 JAR)
-      - name: Install cutthin dependency
-        run: |
-          curl -L -f -o cutthin-1.0.0.jar https://github.com/NOAHSOFTKR/cutscene/releases/download/v1.1/cutthin-1.0.0.jar
-          # JAR 파일인지 검증 (ZIP magic bytes: PK\x03\x04)
-          if ! file cutthin-1.0.0.jar | grep -q "Zip\|Java archive\|archive data"; then
-            echo "ERROR: 다운로드된 파일이 유효한 JAR이 아닙니다."
-            file cutthin-1.0.0.jar
-            xxd cutthin-1.0.0.jar | head -2
-            exit 1
-          fi
-          mvn install:install-file \
-            -Dfile=cutthin-1.0.0.jar \
-            -DgroupId=kr.kjh9211 \
-            -DartifactId=cutthin \
-            -Dversion=1.0.0 \
-            -Dpackaging=jar
-
-      # 3. Maven 빌드
+      # 2. Maven 빌드
       - name: Build Plugin
         run: mvn clean package -DskipTests
 
-      # 4. Release에 올릴 파일 정리
+      # 3. Release에 올릴 파일 정리
       # 마인크래프트 플러그인은 보통 하나만 생성되므로 target/*.jar를 찾습니다.
       - name: Prepare Artifact
         id: artifact
@@ -55,7 +37,7 @@ jobs:
           echo "PLUGIN_PATH=$PLUGIN_FILE" >> $GITHUB_ENV
           echo "Found Plugin: $PLUGIN_FILE"
 
-      # 5. GitHub Release 생성 및 파일 업로드
+      # 4. GitHub Release 생성 및 파일 업로드
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
