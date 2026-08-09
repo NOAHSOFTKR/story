@@ -15,6 +15,9 @@ data class StoryTrigger(
     val itemFilter: String? = null,
 ) {
     fun matchesContext(context: StoryExecutionContext): Boolean {
+        if (event.equals("itemsadder_item_equip", ignoreCase = true) && itemFilter == null) {
+            return false
+        }
         if (blockFilter != null) {
             val contextBlock = context.placeholders["block"] ?: return false
             if (!matchesFilterValue(blockFilter, contextBlock)) return false

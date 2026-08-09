@@ -5,6 +5,7 @@ import kr.kjh9211.story.event.BukkitEventBridge
 import kr.kjh9211.story.event.CutThinEventBridge
 import kr.kjh9211.story.event.ItemsAdderEventBridge
 import kr.kjh9211.story.event.PluginEventBridge
+import kr.kjh9211.story.event.QuestEventBridge
 import kr.kjh9211.story.placeholder.StoryPlaceholderBridge
 import kr.kjh9211.story.story.StoryConfigStore
 import kr.kjh9211.story.story.StoryProgressStore
@@ -27,6 +28,7 @@ class Story : JavaPlugin() {
     private lateinit var itemsAdderEventBridge: ItemsAdderEventBridge
     private lateinit var pluginEventBridge: PluginEventBridge
     private lateinit var cutThinEventBridge: CutThinEventBridge
+    private lateinit var questEventBridge: QuestEventBridge
 
     override fun onEnable() {
         saveResource("stories/example.yml", false)
@@ -45,6 +47,7 @@ class Story : JavaPlugin() {
         itemsAdderEventBridge = ItemsAdderEventBridge(this, storyRuntime)
         pluginEventBridge = PluginEventBridge(this, storyRuntime)
         cutThinEventBridge = CutThinEventBridge(this, storyRuntime)
+        questEventBridge = QuestEventBridge(this, storyRuntime)
         reloadStories()
 
         val storyCommand = StoryCommand(
@@ -71,6 +74,7 @@ class Story : JavaPlugin() {
         itemsAdderEventBridge.registerIfAvailable()
         pluginEventBridge.register()
         cutThinEventBridge.registerIfAvailable()
+        questEventBridge.registerIfAvailable()
         townyEventBridge.registerIfAvailable()
     }
 

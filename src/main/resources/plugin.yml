@@ -7,6 +7,7 @@ softdepend:
   - Towny
   - ItemsAdder
   - CutThin
+  - Quest
 commands:
   story:
     description: Story loader and runtime controls

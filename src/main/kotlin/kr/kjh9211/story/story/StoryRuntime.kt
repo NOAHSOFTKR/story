@@ -10,9 +10,19 @@ class StoryRuntime(
     private val setCurrentStoryId: (UUID, String?) -> Unit,
 ) {
     fun runTriggerByEvent(eventKey: String, context: StoryExecutionContext) {
+        val player = context.sender as? Player
+        val activeStoryId = player?.let { currentStoryIdProvider(it.uniqueId) }
+            ?: player?.let { storyRegistryProvider().orderedStories().firstOrNull()?.id }
+
         storyRegistryProvider().stories()
             .asSequence()
             .filter { it.enabled }
+            .filter { story ->
+                activeStoryId == null || story.id.equals(activeStoryId, ignoreCase = true)
+            }
+            .filter { story ->
+                player == null || !progressStore.isStoryCompleted(player.uniqueId, story.id)
+            }
             .flatMap { story ->
                 story.triggers.asSequence().map { trigger -> story to trigger }
             }
