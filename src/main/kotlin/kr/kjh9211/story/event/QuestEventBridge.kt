@@ -6,9 +6,9 @@ import kr.kjh9211.story.story.StoryRuntime
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
-import org.bukkit.event.EventExecutor
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.plugin.EventExecutor
 
 /**
  * Quest 엔진(kr.kjh9211:quest) 소프트 디펜던시 Bridge. story의 COMPLETE_QUEST 트리거가 서드파티
