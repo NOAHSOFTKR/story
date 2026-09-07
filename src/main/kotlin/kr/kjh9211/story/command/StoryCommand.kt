@@ -6,6 +6,7 @@ import kr.kjh9211.story.story.StoryAction
 import kr.kjh9211.story.story.StoryExecutionContext
 import kr.kjh9211.story.story.StoryRegistry
 import kr.kjh9211.story.story.StoryTrigger
+import kr.kjh9211.story.story.StoryTriggerRunResult
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -19,6 +20,7 @@ class StoryCommand(
     private val restartPlugin: () -> Boolean,
     private val currentStoryIdProvider: (Player) -> String?,
     private val questProgressProvider: (Player, String?) -> kr.kjh9211.story.story.StoryQuestProgress?,
+    private val runManualTrigger: (storyId: String, triggerId: String, context: StoryExecutionContext) -> StoryTriggerRunResult,
     private val setCurrentStory: (Player, storyId: String) -> Boolean,
     private val moveCurrentStory: (Player, StoryMoveDirection) -> Boolean,
     private val setStoryEnabled: (storyId: String, enabled: Boolean) -> Boolean,
@@ -39,12 +41,12 @@ class StoryCommand(
 
         return when (args[0].lowercase()) {
             "list" -> handleStoryList(sender)
-            "reload" -> handleReload(sender)
-            "restart" -> handleRestart(sender)
+            "reload" -> requireAdmin(sender) { handleReload(sender) }
+            "restart" -> requireAdmin(sender) { handleRestart(sender) }
             "progress" -> handleProgressCommand(sender, args.drop(1), label)
             "quest" -> handleQuestCommand(sender, args.drop(1), label)
-            "enable" -> handleStoryToggle(sender, args.getOrNull(1), true)
-            "disable" -> handleStoryToggle(sender, args.getOrNull(1), false)
+            "enable" -> requireAdmin(sender) { handleStoryToggle(sender, args.getOrNull(1), true) }
+            "disable" -> requireAdmin(sender) { handleStoryToggle(sender, args.getOrNull(1), false) }
             "trigger" -> handleTriggerCommand(sender, args.drop(1), label)
             "action" -> handleActionCommand(sender, args.drop(1), label)
             "defendcheck" -> handleDefendcheck(sender)
@@ -230,6 +232,9 @@ class StoryCommand(
             }
 
             "set" -> {
+                if (!requireAdmin(sender)) {
+                    return true
+                }
                 val storyId = args.getOrNull(1)
                 if (storyId == null) {
                     sender.sendMessage("${ChatColor.RED}/$label progress set <storyId>")
@@ -244,6 +249,9 @@ class StoryCommand(
             }
 
             "next" -> {
+                if (!requireAdmin(sender)) {
+                    return true
+                }
                 if (!moveCurrentStory(player, StoryMoveDirection.NEXT)) {
                     sender.sendMessage("${ChatColor.RED}No next story available")
                     return true
@@ -253,6 +261,9 @@ class StoryCommand(
             }
 
             "previous" -> {
+                if (!requireAdmin(sender)) {
+                    return true
+                }
                 if (!moveCurrentStory(player, StoryMoveDirection.PREVIOUS)) {
                     sender.sendMessage("${ChatColor.RED}No previous story available")
                     return true
@@ -308,6 +319,9 @@ class StoryCommand(
             sendTriggerHelp(sender, label)
             return true
         }
+        if (args[0].lowercase() in setOf("run", "enable", "disable") && !requireAdmin(sender)) {
+            return true
+        }
 
         return when (args[0].lowercase()) {
             "list" -> {
@@ -330,18 +344,25 @@ class StoryCommand(
                     return true
                 }
 
-                if (!story.enabled) {
-                    sender.sendMessage("${ChatColor.RED}Story is disabled: ${story.id}")
-                    return true
+                val result = runManualTrigger(
+                    story.id,
+                    trigger.id,
+                    StoryExecutionContext(sender, mapOf("player" to sender.name)),
+                )
+                when (result) {
+                    StoryTriggerRunResult.EXECUTED -> {
+                        sender.sendMessage("${ChatColor.GOLD}[Story]${ChatColor.GREEN} Ran ${story.id}/${trigger.id}")
+                    }
+                    StoryTriggerRunResult.NOT_MANUAL -> {
+                        sender.sendMessage("${ChatColor.RED}${story.id}/${trigger.id} is EVENT-only and cannot be run manually.")
+                    }
+                    StoryTriggerRunResult.PLAYER_REQUIRED -> {
+                        sender.sendMessage("${ChatColor.RED}Manual story triggers must be run by the target player.")
+                    }
+                    else -> {
+                        sender.sendMessage("${ChatColor.RED}Trigger was not run: ${result.name.lowercase().replace('_', ' ')}")
+                    }
                 }
-
-                if (!trigger.enabled) {
-                    sender.sendMessage("${ChatColor.RED}Trigger is disabled: ${trigger.id}")
-                    return true
-                }
-
-                sender.sendMessage("${ChatColor.GOLD}[Story]${ChatColor.GREEN} Running ${story.id}/${trigger.id}")
-                trigger.execute(StoryExecutionContext(sender, mapOf("player" to sender.name)))
                 true
             }
 
@@ -373,6 +394,9 @@ class StoryCommand(
     private fun handleActionCommand(sender: CommandSender, args: List<String>, label: String): Boolean {
         if (args.isEmpty()) {
             sendActionHelp(sender, label)
+            return true
+        }
+        if (args[0].lowercase() in setOf("enable", "disable") && !requireAdmin(sender)) {
             return true
         }
 
@@ -432,6 +456,14 @@ class StoryCommand(
         sender.sendMessage("${ChatColor.GRAY}- ${ChatColor.WHITE}/$label action list <storyId> <triggerId>")
         sender.sendMessage("${ChatColor.GRAY}- ${ChatColor.WHITE}/$label action enable <storyId> <triggerId> <actionId>")
         sender.sendMessage("${ChatColor.GRAY}- ${ChatColor.WHITE}/$label action disable <storyId> <triggerId> <actionId>")
+    }
+
+    private fun requireAdmin(sender: CommandSender, action: (() -> Boolean)? = null): Boolean {
+        if (sender.hasPermission("story.admin")) {
+            return action?.invoke() ?: true
+        }
+        sender.sendMessage("${ChatColor.RED}You do not have permission: story.admin")
+        return false
     }
 
     private fun sendTriggerHelp(sender: CommandSender, label: String) {

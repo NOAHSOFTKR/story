@@ -1,6 +1,6 @@
 id: arcana-towny
 name: Arcana Towny Guide
-enable: true
+enable: false
 previousStory:
 nextStory: arcana-towny-2
 
@@ -17,6 +17,7 @@ triggers:
   - id: town-create
     name: Town creation
     enable: true
+    type: EVENT
     event: towny_town_create
     description: Runs when the player creates a town.
     objectiveId: create-town
@@ -39,6 +40,7 @@ triggers:
   - id: story-done
     name: Story completion
     enable: true
+    type: EVENT
     event: story_done
     description: Runs when all internal quest objectives are completed.
     actions:

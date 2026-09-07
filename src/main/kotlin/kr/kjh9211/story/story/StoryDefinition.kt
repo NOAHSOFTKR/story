@@ -8,6 +8,8 @@ data class StoryDefinition(
     val enabled: Boolean,
     val previousStoryId: String?,
     val nextStoryId: String?,
+    val requiredFlags: Set<String>,
+    val completionFlags: Set<String>,
     val quest: StoryQuest?,
     val triggers: List<StoryTrigger>,
     val sourceFile: File,

@@ -1,5 +1,5 @@
 name: story
-version: '1.1.3-hotfix-3'
+version: '2.3.0'
 main: kr.kjh9211.story.Story
 api-version: '1.21'
 softdepend:
@@ -12,4 +12,8 @@ commands:
   story:
     description: Story loader and runtime controls
     usage: /story <list|reload|restart|progress|quest|enable|disable|trigger|action>
+permissions:
+  story.admin:
+    description: Allows Story runtime administration and manual trigger execution
+    default: op
 authors: [kjh9211,aruru10313]

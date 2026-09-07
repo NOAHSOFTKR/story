@@ -10,9 +10,6 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.plugin.EventExecutor
 import org.bukkit.event.entity.EntityPickupItemEvent
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryType
-import org.bukkit.inventory.ItemStack
 
 class ItemsAdderEventBridge(
     private val plugin: Story,
@@ -59,22 +56,9 @@ class ItemsAdderEventBridge(
     @EventHandler(ignoreCancelled = true)
     fun onItemPickup(event: EntityPickupItemEvent) {
         val player = event.entity as? Player ?: return
-        val itemId = resolveItemsAdderId(event.item.itemStack) ?: return
+        val itemId = EventContextSupport.itemIdentifier(event.item.itemStack) ?: return
         storyRuntime.runTriggerByEvent(
             "itemsadder_item_pickup",
-            EventContextSupport.createContext(player, mapOf("player" to player.name, "item" to itemId)),
-        )
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    fun onInventoryClick(event: InventoryClickEvent) {
-        val player = event.whoClicked as? Player ?: return
-        if (event.slotType != InventoryType.SlotType.ARMOR) {
-            return
-        }
-        val itemId = resolveItemsAdderId(event.currentItem ?: event.cursor) ?: return
-        storyRuntime.runTriggerByEvent(
-            "itemsadder_item_equip",
             EventContextSupport.createContext(player, mapOf("player" to player.name, "item" to itemId)),
         )
     }
@@ -84,22 +68,6 @@ class ItemsAdderEventBridge(
             @Suppress("UNCHECKED_CAST")
             Class.forName(className) as? Class<out Event>
         } catch (_: ClassNotFoundException) {
-            null
-        }
-    }
-
-    private fun resolveItemsAdderId(item: ItemStack?): String? {
-        if (item == null || item.type.isAir) {
-            return null
-        }
-
-        return try {
-            val customStackClass = Class.forName("dev.lone.itemsadder.api.CustomStack")
-            val byItemStack = customStackClass.getMethod("byItemStack", ItemStack::class.java)
-            val customStack = byItemStack.invoke(null, item) ?: return null
-            EventContextSupport.invokeNoArg(customStack, "getNamespacedID")?.toString()
-                ?: EventContextSupport.invokeNoArg(customStack, "getId")?.toString()
-        } catch (_: ReflectiveOperationException) {
             null
         }
     }

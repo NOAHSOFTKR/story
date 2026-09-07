@@ -1,0 +1,11 @@
+# This source-managed stage is deliberately disabled until the assistant-A dialogue and one approved
+# settlement completion route are configured from the synchronized server settings.
+id: arcana-chapter-2
+name: "[Main Story] Chapter 2 - Survival and Settlement"
+enable: false
+previousStory: arcana-chapter-1
+requiredFlags:
+  - chapter_1_completed
+completionFlags:
+  - chapter_2_completed
+triggers: []

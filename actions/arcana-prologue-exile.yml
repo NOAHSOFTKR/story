@@ -16,7 +16,7 @@ actions:
     content: "&6[촌장] &f어리석은 것. 감히 '진실'을 훔쳐보려 하다니."
     toSend: triggeredPlayer
   
-  message-chief-2
+  message-chief-2:
     id: message-chief-2
     enable: true
     content: "&6[촌장] &f네가 본 빛은 모두 환상일 뿐이다. 평화를 위해 네 기억은 소거되어야 한다."

@@ -2,7 +2,6 @@ package kr.kjh9211.story
 
 import kr.kjh9211.story.command.StoryCommand
 import kr.kjh9211.story.event.BukkitEventBridge
-import kr.kjh9211.story.event.CutThinEventBridge
 import kr.kjh9211.story.event.ItemsAdderEventBridge
 import kr.kjh9211.story.event.PluginEventBridge
 import kr.kjh9211.story.event.QuestEventBridge
@@ -27,11 +26,10 @@ class Story : JavaPlugin() {
     private lateinit var bukkitEventBridge: BukkitEventBridge
     private lateinit var itemsAdderEventBridge: ItemsAdderEventBridge
     private lateinit var pluginEventBridge: PluginEventBridge
-    private lateinit var cutThinEventBridge: CutThinEventBridge
     private lateinit var questEventBridge: QuestEventBridge
 
     override fun onEnable() {
-        saveResource("stories/example.yml", false)
+        extractDefaultStories()
 
         storyConfigStore = StoryConfigStore(this)
         storyProgressStore = StoryProgressStore(this)
@@ -39,14 +37,12 @@ class Story : JavaPlugin() {
             storyRegistryProvider = { storyRegistry },
             progressStore = storyProgressStore,
             currentStoryIdProvider = { uuid -> storyProgressStore.currentStoryId(uuid) },
-            setCurrentStoryId = { uuid, storyId -> storyProgressStore.setCurrentStoryId(uuid, storyId) },
         )
         placeholderBridge = StoryPlaceholderBridge(this, { storyRegistry }, storyProgressStore)
         townyEventBridge = TownyEventBridge(this, storyRuntime)
         bukkitEventBridge = BukkitEventBridge(this, storyRuntime)
         itemsAdderEventBridge = ItemsAdderEventBridge(this, storyRuntime)
         pluginEventBridge = PluginEventBridge(this, storyRuntime)
-        cutThinEventBridge = CutThinEventBridge(this, storyRuntime)
         questEventBridge = QuestEventBridge(this, storyRuntime)
         reloadStories()
 
@@ -56,6 +52,7 @@ class Story : JavaPlugin() {
             restartPlugin = ::restartPlugin,
             currentStoryIdProvider = { player -> storyProgressStore.currentStoryId(player.uniqueId) },
             questProgressProvider = { player, storyId -> storyRuntime.questProgress(player, storyId) },
+            runManualTrigger = { storyId, triggerId, context -> storyRuntime.runManualTrigger(storyId, triggerId, context) },
             setCurrentStory = ::setCurrentStory,
             moveCurrentStory = ::moveCurrentStory,
             setStoryEnabled = { storyId, enabled -> setStoryEnabled(storyId, enabled) },
@@ -73,7 +70,9 @@ class Story : JavaPlugin() {
         bukkitEventBridge.register()
         itemsAdderEventBridge.registerIfAvailable()
         pluginEventBridge.register()
-        cutThinEventBridge.registerIfAvailable()
+        if (Bukkit.getPluginManager().getPlugin("CutThin") == null) {
+            logger.warning("CutThin not found; cutscene_fire and cutscene_end story triggers are unavailable.")
+        }
         questEventBridge.registerIfAvailable()
         townyEventBridge.registerIfAvailable()
     }
@@ -89,6 +88,14 @@ class Story : JavaPlugin() {
         ensureCurrentStory()
         logger.info("Loaded ${storyRegistry.stories().size} stories from ${storyConfigStore.storiesDirectory().absolutePath}")
         placeholderBridge.refresh()
+    }
+
+    private fun extractDefaultStories() {
+        listOf(
+            "stories/example.yml",
+            "stories/pending/arcana-chapter-1.yml",
+            "stories/pending/arcana-chapter-2.yml",
+        ).forEach { resource -> saveResource(resource, false) }
     }
 
     fun restartPlugin(): Boolean {
@@ -109,9 +116,11 @@ class Story : JavaPlugin() {
 
     private fun setCurrentStory(player: Player, storyId: String): Boolean {
         val story = storyRegistry.findStory(storyId) ?: return false
-        storyProgressStore.setCurrentStoryId(player.uniqueId, story.id)
-        placeholderBridge.refresh()
-        return true
+        val updated = storyProgressStore.setCurrentStoryId(player.uniqueId, story.id)
+        if (updated) {
+            placeholderBridge.refresh()
+        }
+        return updated
     }
 
     private fun moveCurrentStory(player: Player, direction: StoryMoveDirection): Boolean {
@@ -123,9 +132,11 @@ class Story : JavaPlugin() {
             StoryMoveDirection.PREVIOUS -> storyRegistry.previousStory(currentId)
         } ?: return false
 
-        storyProgressStore.setCurrentStoryId(player.uniqueId, target.id)
-        placeholderBridge.refresh()
-        return true
+        val updated = storyProgressStore.setCurrentStoryId(player.uniqueId, target.id)
+        if (updated) {
+            placeholderBridge.refresh()
+        }
+        return updated
     }
 
     private fun setStoryEnabled(storyId: String, enabled: Boolean): Boolean {

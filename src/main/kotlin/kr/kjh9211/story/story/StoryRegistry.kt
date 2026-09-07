@@ -50,6 +50,12 @@ class StoryRegistry(
 
     fun totalStories(): Int = orderedStories().size
 
+    fun initialStory(): StoryDefinition? {
+        return orderedStories().firstOrNull { story ->
+            story.enabled && story.previousStoryId.isNullOrBlank()
+        }
+    }
+
     fun progressIndex(storyId: String?): Int? {
         if (storyId == null) {
             return null

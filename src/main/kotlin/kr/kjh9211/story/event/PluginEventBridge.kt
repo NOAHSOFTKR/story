@@ -23,8 +23,8 @@ class PluginEventBridge(
             ),
             contextFactory = { event ->
                 val sender = EventContextSupport.extractSenderFromMethods(event, "getKiller", "getPlayer")
-                val mobType = EventContextSupport.readName(EventContextSupport.invokeNoArg(event, "getMobType"))
-                    ?: EventContextSupport.readName(EventContextSupport.invokeNoArg(event, "getMob"))
+                val mobType = EventContextSupport.readStableId(EventContextSupport.invokeNoArg(event, "getMobType"))
+                    ?: EventContextSupport.readStableId(EventContextSupport.invokeNoArg(event, "getMob"))
                 EventContextSupport.createContext(
                     sender,
                     mapOfNotNull("player" to sender?.name, "mob" to mobType),
@@ -41,11 +41,46 @@ class PluginEventBridge(
             ),
             contextFactory = { event ->
                 val sender = EventContextSupport.extractSenderFromMethods(event, "getPlayer")
-                val questName = EventContextSupport.readName(EventContextSupport.invokeNoArg(event, "getQuest"))
-                    ?: EventContextSupport.readName(EventContextSupport.invokeNoArg(event, "getQuestName"))
+                val questName = EventContextSupport.readStableId(EventContextSupport.invokeNoArg(event, "getQuest"))
+                    ?: EventContextSupport.readStableId(EventContextSupport.invokeNoArg(event, "getQuestName"))
                 EventContextSupport.createContext(
                     sender,
                     mapOfNotNull("player" to sender?.name, "quest" to questName),
+                )
+            },
+        ),
+        ReflectiveEventRegistration(
+            eventKey = "cutscene_fire",
+            classNames = listOf("kr.kjh9211.cutthin.event.CutsceneFireEvent"),
+            contextFactory = { event ->
+                val sender = EventContextSupport.extractSenderFromMethods(event, "getPlayer")
+                val cutsceneId = EventContextSupport.readStableId(EventContextSupport.invokeNoArg(event, "getCutscene"))
+                val key = EventContextSupport.invokeNoArg(event, "getKey")?.toString()
+                val placeholders = EventContextSupport.readStringMap(EventContextSupport.invokeNoArg(event, "getPlaceholders"))
+                EventContextSupport.createContext(
+                    sender,
+                    placeholders + mapOfNotNull(
+                        "player" to sender?.name,
+                        "cutscene" to cutsceneId,
+                        "cutsceneKey" to key,
+                    ),
+                )
+            },
+        ),
+        ReflectiveEventRegistration(
+            eventKey = "cutscene_end",
+            classNames = listOf("kr.kjh9211.cutthin.event.CutsceneEndEvent"),
+            contextFactory = { event ->
+                val sender = EventContextSupport.extractSenderFromMethods(event, "getPlayer")
+                val cutsceneId = EventContextSupport.readStableId(EventContextSupport.invokeNoArg(event, "getCutscene"))
+                val reason = EventContextSupport.invokeNoArg(event, "getReason")?.toString()
+                EventContextSupport.createContext(
+                    sender,
+                    mapOfNotNull(
+                        "player" to sender?.name,
+                        "cutscene" to cutsceneId,
+                        "cutsceneReason" to reason,
+                    ),
                 )
             },
         ),
@@ -53,7 +88,13 @@ class PluginEventBridge(
 
     fun register() {
         registrations.forEach { registration ->
-            val eventClass = registration.classNames.firstNotNullOfOrNull(::resolveEventClass) ?: return@forEach
+            val eventClass = registration.classNames.firstNotNullOfOrNull(::resolveEventClass)
+            if (eventClass == null) {
+                plugin.logger.warning(
+                    "No compatible event class is available for '${registration.eventKey}'; matching story triggers are inactive.",
+                )
+                return@forEach
+            }
             Bukkit.getPluginManager().registerEvent(
                 eventClass,
                 listener,

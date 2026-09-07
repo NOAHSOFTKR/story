@@ -1,0 +1,25 @@
+# This source-managed stage is deliberately disabled until the external server configuration is synced.
+# Do not enable it before the exact ItemsAdder ID, designated chest location, NPC flow, and safe wild
+# teleport policy are filled in and tested.
+id: arcana-chapter-1
+name: "[Main Story] Chapter 1 - False Peace and Exile"
+enable: false
+nextStory: arcana-chapter-2
+completionFlags:
+  - chapter_1_completed
+triggers:
+  - id: exile-cutscene-completed
+    name: Exile cutscene completed
+    enable: false
+    type: EVENT
+    event: cutscene_end
+    cutscene: arcana-prologue-exile
+    cutsceneReason: COMPLETED
+    completeStory: true
+    description: Completes Chapter 1 only after the configured exile flow starts this cutscene.
+    actions:
+      message:
+        id: chapter-1-completed
+        enable: true
+        content: "&7낯선 곳에서 눈을 떴다. 살아남아야 한다."
+        toSend: triggeredPlayer

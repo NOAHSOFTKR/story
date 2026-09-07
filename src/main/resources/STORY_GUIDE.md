@@ -1,5 +1,8 @@
 # Story Guide
 
+> The player-progress and main-story rules in `stories/MAIN_STORY_CONTRACT.md` take precedence
+> over this generic configuration guide.
+
 ## Overview
 
 This plugin loads every `yml` or `yaml` file under `plugins/story/stories/`.
@@ -47,9 +50,9 @@ actions:
 - Default: `true`
 - Enables or disables the whole story.
 
-`trigger`
+`trigger` / `triggers`
 - Optional, but needed if you want the story to react to an event or be run manually.
-- Current code supports one trigger per story file.
+- Use `trigger` for one trigger or `triggers` for an ordered list of triggers.
 
 `actions`
 - Optional.
@@ -74,9 +77,9 @@ actions:
 
 `trigger.type`
 - Optional.
-- Current supported value:
-  - `MANUAL`
-- If omitted, defaults to `MANUAL`.
+- Supported values:
+  - `EVENT`: runs only from a registered event bridge. This is the default.
+  - `MANUAL`: runs only from `/story trigger run`, with the normal progress and filter checks.
 
 `trigger.event`
 - Required for event-driven behavior.
@@ -258,7 +261,7 @@ If Towny is installed, these `trigger.event` values are currently connected:
 ## Rules
 
 - Every story file must have a unique `id`.
-- Only one trigger is currently loaded from each story file.
+- `trigger` and `triggers` are both supported; a story can define multiple triggers.
 - The plugin loads all files under the stories folder recursively.
 - If Towny or PlaceholderAPI is not installed, the plugin skips those integrations safely.
 

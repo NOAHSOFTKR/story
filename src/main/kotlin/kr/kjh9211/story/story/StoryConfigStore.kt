@@ -157,6 +157,8 @@ class StoryConfigStore(
             enabled = yaml.getBoolean("enable", true),
             previousStoryId = yaml.getString("previousStory")?.takeIf { it.isNotBlank() },
             nextStoryId = yaml.getString("nextStory")?.takeIf { it.isNotBlank() },
+            requiredFlags = yaml.getStringList("requiredFlags").map { it.trim() }.filter { it.isNotBlank() }.toSet(),
+            completionFlags = yaml.getStringList("completionFlags").map { it.trim() }.filter { it.isNotBlank() }.toSet(),
             quest = loadQuest(yaml),
             triggers = loadTriggers(yaml, id),
             sourceFile = file,
@@ -203,20 +205,65 @@ class StoryConfigStore(
             ?.takeIf { it.isNotBlank() }
             ?: return null
         val triggerId = triggerSection.getString("id")?.takeIf { it.isNotBlank() } ?: event
+        val configuredType = triggerSection.getString("type")
+        val type = StoryTriggerType.fromConfig(configuredType)
+        if (!StoryTriggerType.isSupported(configuredType)) {
+            plugin.logger.warning(
+                "Story '$storyId' trigger '$triggerId' has unsupported type '$configuredType'; treating it as EVENT.",
+            )
+        }
+        val filters = loadFilters(triggerSection)
+        val eventSupported = type == StoryTriggerType.MANUAL || StoryEventKey.isSupported(event)
+        if (!eventSupported) {
+            plugin.logger.warning(
+                "Story '$storyId' trigger '$triggerId' uses unsupported event '$event'; it will not run automatically.",
+            )
+        }
+        val hasFullArmorFilter = setOf("armor.helmet", "armor.chestplate", "armor.leggings", "armor.boots")
+            .all(filters::containsKey)
+        val armorFilterValid = !event.equals("itemsadder_item_equip", ignoreCase = true) ||
+            type == StoryTriggerType.MANUAL || hasFullArmorFilter
+        if (!armorFilterValid) {
+            plugin.logger.warning(
+                "Story '$storyId' trigger '$triggerId' must configure armor.helmet/chestplate/leggings/boots for itemsadder_item_equip.",
+            )
+        }
 
         return StoryTrigger(
             id = triggerId,
-            type = StoryTriggerType.fromConfig(triggerSection.getString("type")),
-            enabled = triggerSection.getBoolean("enable", true),
+            type = type,
+            enabled = triggerSection.getBoolean("enable", true) && eventSupported && armorFilterValid,
             title = triggerSection.getString("name")?.ifBlank { triggerId } ?: triggerId,
             description = triggerSection.getString("description").orEmpty(),
             event = event,
             objectiveId = triggerSection.getString("objectiveId")?.takeIf { it.isNotBlank() },
             progressAmount = triggerSection.getInt("amount", 1).coerceAtLeast(1),
+            repeatable = triggerSection.getBoolean("repeatable", false),
+            completesStory = triggerSection.getBoolean("completeStory", false),
+            filters = filters,
             actions = loadActions(triggerSection, storyId, triggerId),
-            blockFilter = triggerSection.getString("block")?.takeIf { it.isNotBlank() },
-            itemFilter = triggerSection.getString("item")?.takeIf { it.isNotBlank() },
         )
+    }
+
+    private fun loadFilters(triggerSection: org.bukkit.configuration.ConfigurationSection): Map<String, String> {
+        val filters = linkedMapOf<String, String>()
+        listOf("block", "item", "mob", "quest", "cutscene", "cutsceneKey", "cutsceneReason", "container")
+            .forEach { key ->
+                triggerSection.getString(key)?.takeIf { it.isNotBlank() }?.let { filters[key] = it }
+            }
+        triggerSection.getConfigurationSection("filters")?.getKeys(false)?.forEach { key ->
+            triggerSection.getConfigurationSection("filters")
+                ?.getString(key)
+                ?.takeIf { it.isNotBlank() }
+                ?.let { filters[key] = it }
+        }
+        triggerSection.getConfigurationSection("armor")?.getKeys(false)?.forEach { slot ->
+            triggerSection.getConfigurationSection("armor")
+                ?.getString(slot)
+                ?.takeIf { it.isNotBlank() }
+                ?.let { filters["armor.${slot.lowercase()}"] = it }
+        }
+        return filters
     }
 
     private fun loadActions(

@@ -10,35 +10,29 @@ data class StoryTrigger(
     val event: String,
     val objectiveId: String? = null,
     val progressAmount: Int = 1,
+    val repeatable: Boolean = false,
+    val completesStory: Boolean = false,
+    val filters: Map<String, String> = emptyMap(),
     val actions: List<StoryAction>,
-    val blockFilter: String? = null,
-    val itemFilter: String? = null,
 ) {
     fun matchesContext(context: StoryExecutionContext): Boolean {
-        if (event.equals("itemsadder_item_equip", ignoreCase = true) && itemFilter == null) {
-            return false
+        return filters.all { (key, filter) ->
+            context.placeholders[key]?.let { value -> matchesFilterValue(filter, value) } ?: false
         }
-        if (blockFilter != null) {
-            val contextBlock = context.placeholders["block"] ?: return false
-            if (!matchesFilterValue(blockFilter, contextBlock)) return false
-        }
-        if (itemFilter != null) {
-            val contextItem = context.placeholders["item"] ?: return false
-            if (!matchesFilterValue(itemFilter, contextItem)) return false
-        }
-        return true
     }
 
     private fun matchesFilterValue(filter: String, contextValue: String): Boolean {
-        return if (':' in contextValue) {
-            filter.equals(contextValue, ignoreCase = true)
-        } else {
-            val normalized = if (':' in filter) {
-                filter.substringAfter(':').uppercase().replace('-', '_')
+        return if (':' in filter) {
+            if (':' in contextValue) {
+                filter.equals(contextValue, ignoreCase = true)
             } else {
-                filter.uppercase().replace('-', '_')
+                filter.substringBefore(':').equals("minecraft", ignoreCase = true) &&
+                    filter.substringAfter(':').equals(contextValue, ignoreCase = true)
             }
-            normalized == contextValue.uppercase()
+        } else {
+            val normalizedFilter = filter.substringAfter(':').uppercase().replace('-', '_')
+            val normalizedContext = contextValue.substringAfter(':').uppercase().replace('-', '_')
+            normalizedFilter == normalizedContext
         }
     }
 

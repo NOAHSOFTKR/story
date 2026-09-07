@@ -15,9 +15,8 @@ import org.bukkit.plugin.EventExecutor
  * Quests(me.blackvein/me.pikamug, [PluginEventBridge]의 리플렉션 등록) 대신 이 프로젝트의
  * QuestCompleteEvent/QuestRewardClaimEvent를 직접 구독하도록 전환한다(ROADMAP.md Phase 4).
  *
- * 이벤트 키는 CutThin의 "cutscene_end:<id>" 관례를 따라 퀘스트 id로 구분한다 — 서드파티 경로는
- * 퀘스트별 구분이 불가능해 아무 퀘스트 완료에나 반응했지만, 이쪽은 story 설정에서 특정 퀘스트를
- * 지정할 수 있다.
+ * 퀘스트 ID는 Story 트리거의 `quest` 필터로 판정한다. 별도 이벤트 키에 ID를 붙이지 않으므로
+ * 외부 Quests 브리지와 동일한 설정 계약을 유지한다.
  */
 class QuestEventBridge(
     private val plugin: Story,
@@ -29,8 +28,8 @@ class QuestEventBridge(
             plugin.logger.info("Quest not found; Quest engine story bridge is disabled.")
             return
         }
-        register("kr.kjh9211.quest.event.QuestCompleteEvent", "quest_complete")
-        register("kr.kjh9211.quest.event.QuestRewardClaimEvent", "quest_reward_claim")
+        register("kr.kjh9211.quest.event.QuestCompleteEvent", "quests_quest_complete")
+        register("kr.kjh9211.quest.event.QuestRewardClaimEvent", "quests_quest_reward_claim")
     }
 
     private fun register(className: String, eventPrefix: String) {
