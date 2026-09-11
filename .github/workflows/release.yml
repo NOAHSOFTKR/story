@@ -26,6 +26,8 @@ jobs:
       # 2. Maven 빌드 (cutthin 의존성은 legacy-story/pom.xml이 libs/ 로컬 저장소에서 직접 해석한다)
       - name: Build Plugins
         run: mvn -B clean verify
+        env:
+          ARCANASTORY_REQUIRE_DOCKER: 'true'
 
       # 3. GitHub Release 생성 및 두 플러그인 jar 업로드 (shade의 original-*.jar는 패턴에서 제외된다)
       - name: Create Release

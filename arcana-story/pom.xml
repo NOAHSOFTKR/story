@@ -23,7 +23,22 @@
         <!-- 4.45.1은 Paper API 1.21.4로 빌드된 마지막 MockBukkit 릴리스다(4.46.0부터 1.21.5). -->
         <mockbukkit.version>4.45.1</mockbukkit.version>
         <junit.version>5.11.3</junit.version>
+        <hikari.version>5.1.0</hikari.version>
+        <mysql.connector.version>9.1.0</mysql.connector.version>
+        <testcontainers.version>2.0.5</testcontainers.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <finalName>ArcanaStory-${project.version}</finalName>
@@ -79,7 +94,11 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <!-- 서버의 다른 플러그인이 번들한 kotlin-stdlib과 충돌하지 않도록 relocate한다. -->
+                            <!--
+                                kotlin-stdlib과 HikariCP는 다른 플러그인이 번들한 버전과 충돌하지 않도록 relocate한다.
+                                MySQL Connector/J는 relocate하지 않는다 - 드라이버가 리소스 번들과
+                                META-INF/services 경로를 자기 패키지 이름 기준으로 찾기 때문이다.
+                            -->
                             <relocations>
                                 <relocation>
                                     <pattern>kotlin</pattern>
@@ -93,7 +112,15 @@
                                     <pattern>org.jetbrains.annotations</pattern>
                                     <shadedPattern>kr.kjh9211.arcanastory.libs.jetbrains.annotations</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.zaxxer.hikari</pattern>
+                                    <shadedPattern>kr.kjh9211.arcanastory.libs.hikari</shadedPattern>
+                                </relocation>
                             </relocations>
+                            <transformers>
+                                <!-- JDBC 드라이버의 META-INF/services 항목을 보존한다. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -126,6 +153,7 @@
     </repositories>
 
     <dependencies>
+        <!-- paper-api가 gson·snakeyaml·slf4j-api를 함께 제공하므로 따로 번들하지 않는다. -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -138,6 +166,24 @@
             <version>${kotlin.version}</version>
         </dependency>
 
+        <!-- 운영 저장소는 호스팅 MySQL이다. 드라이버와 커넥션 풀은 shaded jar에 함께 번들한다. -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikari.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.connector.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -148,6 +194,15 @@
             <groupId>org.mockbukkit.mockbukkit</groupId>
             <artifactId>mockbukkit-v1.21</artifactId>
             <version>${mockbukkit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!--
+            production 스키마·마이그레이션은 실제 MySQL에서 검증한다. Docker가 없는 개발 장비에서는 건너뛰고,
+            CI에서는 ARCANASTORY_REQUIRE_DOCKER=true로 skip 대신 실패하게 한다.
+        -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-mysql</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
