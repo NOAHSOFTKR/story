@@ -1,0 +1,90 @@
+# 샘플: 레거시 arcana-prologue-exile을 Chapter로 옮긴 형태. quest id·월드·좌표·아이템 id는 예시 값이다.
+id: prologue.exile
+title: "무너진 평화"
+arc: prologue
+order: 20
+
+prerequisites:
+  chapters: [prologue.awakening]
+
+entry:
+  step: confront_chief
+  location: village_square
+
+locations:
+  village_square: { world: story_prologue, x: 0.5, y: 64, z: 0.5 }
+  chest_room: { world: story_prologue, x: 20.5, y: 64, z: 4.5, yaw: 180 }
+  wilderness: { world: story_wild, x: 1200.5, y: 72, z: -300.5 }
+
+branches:
+  trust: { title: "촌장을 믿는다" }
+  distrust: { title: "촌장을 의심한다" }
+
+choices:
+  chief_words:
+    prompt: "촌장의 말을 믿을 것인가?"
+    options:
+      - { id: trust, text: "믿는다", branch: trust }
+      - { id: distrust, text: "의심한다", branch: distrust }
+
+checkpoints:
+  before_exile:
+    location: chest_room
+    # 복구 시 컷신은 중간 프레임이 아니라 처음부터 다시 재생한다.
+    replay_cutscene: prologue.memory_wipe
+
+dialogues:
+  chief:
+    start: warning
+    nodes:
+      warning:
+        speaker: "촌장"
+        lines:
+          - "어리석은 것. 감히 '진실'을 훔쳐보려 하다니."
+          - "네가 본 빛은 모두 환상일 뿐이다."
+        next: decide
+      decide:
+        speaker: "촌장"
+        lines: ["평화를 위해 네 기억은 소거되어야 한다. 받아들이겠느냐?"]
+        # 파티 세션에서는 Session Leader만 선택할 수 있다.
+        choice:
+          id: chief_words
+          next: { trust: null, distrust: null }
+
+steps:
+  - id: confront_chief
+    on_enter:
+      - { type: dialogue, dialogue: chief }
+    await:
+      - { type: choice_made, choice: chief_words, next: hide_luminite }
+
+  - id: hide_luminite
+    on_enter:
+      - { type: teleport, location: chest_room }
+      - { type: start_quest, quest: story_prologue_hide_luminite }
+    await:
+      # 지정 상자에 루미네이트를 넣는 판정은 Quest objective가 담당한다.
+      - type: quest_complete
+        quest: story_prologue_hide_luminite
+        actions:
+          - { type: checkpoint, checkpoint: before_exile }
+          - { type: clear_inventory }
+          - { type: cutscene, cutscene: prologue.memory_wipe }
+        next: exile
+
+  - id: exile
+    await:
+      - type: cutscene_end
+        cutscene: prologue.memory_wipe
+        actions:
+          - { type: teleport, location: wilderness }
+          - { type: title, subtitle: "&7낯선 곳에서 눈을 떴다..." }
+          - { type: set_flag, flag: prologue_exiled, persist: true }
+          - { type: complete_chapter }
+
+rewards:
+  first_clear:
+    - { type: item, item: "arcana:tattered_material", amount: 3 }
+  branches:
+    distrust:
+      - { type: item, item: "arcana:corrupted_luminite", amount: 1 }

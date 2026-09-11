@@ -1,0 +1,30 @@
+# 샘플: 레거시 arcana-prologue-discovery를 Chapter로 옮긴 형태. quest id·월드·좌표는 예시 값이다.
+id: prologue.awakening
+title: "운명의 발견"
+arc: prologue
+order: 10
+
+entry:
+  step: find_luminite
+  location: village_outskirts
+
+locations:
+  village_outskirts: { world: story_prologue, x: 12.5, y: 64, z: -8.5, yaw: 90 }
+
+steps:
+  - id: find_luminite
+    on_enter:
+      - { type: start_quest, quest: story_prologue_find_luminite }
+    await:
+      # 루미네이트 원석 획득 판정은 Quest objective가 담당한다.
+      - type: quest_complete
+        quest: story_prologue_find_luminite
+        actions:
+          - { type: message, text: "&f[시스템] &7이 따뜻하고 매혹적인 빛... 왠지 다른 사람에게 들키면 안 될 것 같다." }
+          - { type: actionbar, text: "&6영롱하게 빛나는 루미네이트를 발견했습니다." }
+          - { type: sound, sound: "minecraft:block.amethyst_block.hit", pitch: 1.2 }
+          - { type: complete_chapter }
+
+rewards:
+  first_clear:
+    - { type: experience, points: 50 }
