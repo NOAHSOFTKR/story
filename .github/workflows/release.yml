@@ -23,35 +23,17 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 2. cutthin 의존성 로컬 Maven 저장소에 설치
-      - name: Install cutthin dependency
-        run: |
-          mvn install:install-file \
-            -Dfile=libs/kr/kjh9211/cutthin/1.0.0/cutthin-1.0.0.jar \
-            -DgroupId=kr.kjh9211 \
-            -DartifactId=cutthin \
-            -Dversion=1.0.0 \
-            -Dpackaging=jar
+      # 2. Maven 빌드 (cutthin 의존성은 legacy-story/pom.xml이 libs/ 로컬 저장소에서 직접 해석한다)
+      - name: Build Plugins
+        run: mvn -B clean verify
 
-      # 3. Maven 빌드
-      - name: Build Plugin
-        run: mvn clean package -DskipTests
-
-      # 4. Release에 올릴 파일 정리
-      # 마인크래프트 플러그인은 보통 하나만 생성되므로 target/*.jar를 찾습니다.
-      - name: Prepare Artifact
-        id: artifact
-        run: |
-          # 'original-'이 붙은 파일이나 sources.jar 등은 제외하고 진짜 플러그인 jar만 선택
-          PLUGIN_FILE=$(ls target/*.jar | grep -vE "original|sources|javadoc" | head -n 1)
-          echo "PLUGIN_PATH=$PLUGIN_FILE" >> $GITHUB_ENV
-          echo "Found Plugin: $PLUGIN_FILE"
-
-      # 5. GitHub Release 생성 및 파일 업로드
+      # 3. GitHub Release 생성 및 두 플러그인 jar 업로드 (shade의 original-*.jar는 패턴에서 제외된다)
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.PLUGIN_PATH }}
+          files: |
+            legacy-story/target/story-*.jar
+            arcana-story/target/ArcanaStory-*.jar
           # 태그 메시지나 커밋 로그를 기반으로 본문을 자동 생성하고 싶을 때 유용
           generate_release_notes: true 
         env:

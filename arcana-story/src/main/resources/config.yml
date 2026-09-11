@@ -1,0 +1,6 @@
+# plugins/ArcanaStory/config.yml
+
+server:
+  # ArcanaStory는 Story Paper 전용이다. STORY가 아니거나, Quest 플러그인의 server.realm이 STORY가 아니면
+  # 플러그인이 스스로 비활성화된다.
+  realm: STORY
