@@ -1,0 +1,14 @@
+name: ArcanaStory
+version: '${project.version}'
+main: kr.kjh9211.arcanastory.ArcanaStoryPlugin
+api-version: '1.21'
+description: Story Paper 전용 Chapter / Session / Dialogue / Cutscene 엔진
+authors: [kjh9211, aruru10313]
+softdepend:
+  - Quest
+  - ArcanaCore
+  - arcanaChecker
+  - CutThin
+  - Citizens
+  - MythicMobs
+  - PlaceholderAPI
