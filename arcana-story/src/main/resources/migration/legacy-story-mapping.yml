@@ -1,0 +1,39 @@
+# 레거시 story 단계(legacyStoryId) → 새 구조 귀속 매핑.
+#
+# realm
+#   STORY    : ArcanaStory Chapter로 이관. chapter는 Chapter id이며, 새 스토리 기획에서 배치가 확정되기 전까지 TBD.
+#   SURVIVAL : Survival 서버의 SURVIVAL scope Quest로 이관 (ArcanaStory 대상 아님).
+#   REMOVED  : Story에서 제거. 이관하지 않는다.
+#
+# pre_claim_rewards (STORY 전용, 기본값 [first_clear])
+#   레거시에서 이미 give 명령으로 지급했으므로 이관 시 claim만 기록하고 delivery는 만들지 않는 보상 키.
+version: 1
+entries:
+  # 프롤로그
+  arcana-prologue-discovery: { realm: STORY, chapter: TBD }
+  arcana-prologue-exile: { realm: STORY, chapter: TBD }
+
+  # Towny / Nation 계열 → Survival
+  arcana-town-create: { realm: SURVIVAL }
+  arcana-town-claim: { realm: SURVIVAL }
+  arcana-town-add-resident: { realm: SURVIVAL }
+  arcana-nation-create: { realm: SURVIVAL }
+
+  # town / nation transaction → Story에서 제거
+  arcana-town-transaction: { realm: REMOVED }
+  arcana-nation-transaction: { realm: REMOVED }
+
+  # 던전 · 제작 · 진실 · 최종
+  arcana-dungeon-discover: { realm: STORY, chapter: TBD }
+  arcana-first-battle: { realm: STORY, chapter: TBD }
+  arcana-sword-craft: { realm: STORY, chapter: TBD }
+  arcana-truth-discover: { realm: STORY, chapter: TBD }
+  arcana-memory-restore: { realm: STORY, chapter: TBD }
+  arcana-luminite-equip: { realm: STORY, chapter: TBD }
+  arcana-final-boss: { realm: STORY, chapter: TBD }
+  arcana-world-saved: { realm: STORY, chapter: TBD }
+
+  # legacy-story 리소스 (example.yml, stories/pending/*)
+  arcana-towny: { realm: REMOVED }
+  arcana-chapter-1: { realm: STORY, chapter: TBD }
+  arcana-chapter-2: { realm: STORY, chapter: TBD }

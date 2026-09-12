@@ -1,0 +1,17 @@
+# 샘플: CutThin arcana-prologue-exile 컷신에서 clear_inventory·teleport·fire_event를 뺀 형태.
+# 인벤토리 삭제와 이동은 Chapter의 checkpoint 결합 action이 담당한다.
+id: prologue.memory_wipe
+name: "기억 소거"
+freeze: true
+vanilla:
+  - { type: effect, effect: BLINDNESS, duration: 240, amplifier: 5 }
+  - { type: effect, effect: SLOWNESS, duration: 240, amplifier: 10 }
+  - { type: wait, ticks: 20 }
+  - { type: sound, sound: ENTITY_ELDER_GUARDIAN_CURSE, volume: 1.0, pitch: 1.0 }
+  - { type: title, title: "&k지직거리는노이즈", subtitle: "&7머리가 깨질 듯한 고통...", fadeIn: 10, stay: 60, fadeOut: 0 }
+  - { type: wait, ticks: 60 }
+  - { type: chat, message: "&8[시스템] 루미네이트... 마을의 진실... 당신의 이름..." }
+  - { type: wait, ticks: 40 }
+  - { type: chat, message: "&8[시스템] 모든 것이 &k지직거리는노이즈&8로 변해갑니다." }
+  - { type: wait, ticks: 40 }
+  - { type: clear_effects }
