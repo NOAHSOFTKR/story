@@ -1,51 +1,54 @@
+# Source: NOAHSOFTKR/story actions/arcana-prologue-exile.yml (schema 2.2.1 → 2.3.0 변환)
+# Chapter 1 클라이맥스. 루미네이트를 상자에 넣는 순간 추방+기억 소거.
+# MANUAL: 지정 상자 좌표 미정 (2.3.0 container 필터 = world:x:y:z 형식).
+# TODO: 추방 상자 좌표 확정 후 filters.container 지정 + type: EVENT 승격.
+# Upstream 버그 수정: message-chief-2 키에 콜론 누락되어 있었음.
 id: arcana-prologue-exile
 name: "[아르카나] 무너진 평화"
 enable: true
 nextStory: arcana-town-create
-trigger:
-  id: exile-trigger
-  name: Exile and Memory Wipe
-  enable: true
-  event: block_interact_chest  # 상자에 아이템을 넣는 상호작용
-  description: 루미네이트를 상자에 넣는 순간 발동
-
-actions:
-  message:
-    id: message-chief-1
+triggers:
+  - id: exile-trigger
+    name: Exile and Memory Wipe
     enable: true
-    content: "&6[촌장] &f어리석은 것. 감히 '진실'을 훔쳐보려 하다니."
-    toSend: triggeredPlayer
-  
-  message-chief-2:
-    id: message-chief-2
-    enable: true
-    content: "&6[촌장] &f네가 본 빛은 모두 환상일 뿐이다. 평화를 위해 네 기억은 소거되어야 한다."
-    toSend: triggeredPlayer
-  
-  message-system-1:
-    id: message-system-1
-    enable: true
-    content: "&c[시스템] &f머리가 깨질 듯한 고통과 함께 기억이 지워집니다!"
-    toSend: triggeredPlayer
-
-  message-system-2:
-    id: message-system-2
-    enable: true
-    content: "&c[시스템] &f루미네이트... 마을의 진실... 당신의 이름..."
-    toSend: triggeredPlayer
-
-  message-noise:
-    id: message-noise
-    enable: true
-    content: "&c[시스템] &f모든 것이 &k지직거리는노이즈&r로 변해갑니다."
-    toSend: triggeredPlayer
-
-  commandsEnable: true
-  commands:
-  - "effect give {player} minecraft:blindness 10 1"
-  - "effect give {player} minecraft:slowness 10 255"
-  - "clear {player}"
-  - "title {player} title {\"text\":\"&k지직거리는텍스트\",\"color\":\"red\"}"
-  - "subtitle {player} subtitle {\"text\":\"&c기억이 소거되고 있습니다...\",\"color\":\"dark_red\"}"
-  - "mv tp {player} wild" # 멀티버스 야생 텔레포트
-  - "playsound minecraft:entity.elder_guardian.curse player {player} ~ ~ ~ 1 0.5"
+    type: MANUAL
+    event: block_interact_chest
+    description: 루미네이트를 상자에 넣는 순간 발동
+    filters:
+      # TODO: 지정 상자 좌표 (예: world:100:64:-25)
+      container: __todo_exile_chest__
+    actions:
+      message-chief-1:
+        id: message-chief-1
+        enable: true
+        content: "&6[촌장] &f어리석은 것. 감히 '진실'을 훔쳐보려 하다니."
+        toSend: triggeredPlayer
+      message-chief-2:
+        id: message-chief-2
+        enable: true
+        content: "&6[촌장] &f네가 본 빛은 모두 환상일 뿐이다. 평화를 위해 네 기억은 소거되어야 한다."
+        toSend: triggeredPlayer
+      message-system-1:
+        id: message-system-1
+        enable: true
+        content: "&c[시스템] &f머리가 깨질 듯한 고통과 함께 기억이 지워집니다!"
+        toSend: triggeredPlayer
+      message-system-2:
+        id: message-system-2
+        enable: true
+        content: "&c[시스템] &f루미네이트... 마을의 진실... 당신의 이름..."
+        toSend: triggeredPlayer
+      message-noise:
+        id: message-noise
+        enable: true
+        content: "&c[시스템] &f모든 것이 &k지직거리는노이즈&r로 변해갑니다."
+        toSend: triggeredPlayer
+      commandsEnable: true
+      commands:
+        - "effect give {player} minecraft:blindness 10 1"
+        - "effect give {player} minecraft:slowness 10 255"
+        - "clear {player}"
+        - "title {player} title {\"text\":\"지직거리는텍스트\",\"obfuscated\":true,\"color\":\"red\"}"
+        - "title {player} subtitle {\"text\":\"기억이 소거되고 있습니다...\",\"color\":\"dark_red\"}"
+        - "mv tp {player} wild"
+        - "playsound minecraft:entity.elder_guardian.curse player {player} ~ ~ ~ 1 0.5"

@@ -1,0 +1,203 @@
+# ============================================================================
+#  Arcana 시그널 버스
+# ----------------------------------------------------------------------------
+#  Quest 퀘스트 YAML 의 `type: custom:signal` 목적지는 실제로 아무도 발화시키지
+#  않아 영영 진행되지 않았다. 이 파일이 그 발화 지점이다.
+#
+#  동작: story 트리거가 발동 → 콘솔에서 `arcana signal <id> 1 <player>` 실행
+#        → ArcanaSignalBridge 가 QuestAPI.sendSignal(player, id, 1) 호출
+#        → 해당 시그널을 요구사항으로 가진 퀘스트 목적지가 진행된다.
+#
+#  ── 테스트 ────────────────────────────────────────────────────────────
+#    (OP 콘솔)
+#    /arcana list                                       시그널 9개 + 매핑
+#    /arcana signal memory_wipe 1 <플레이어>              직접 발화
+#    /story trigger list arcana-signal-bus               트리거 9개 확인
+#    /story trigger run arcana-signal-bus memory-wipe-cutscene   수동 발화
+#
+#  ── story 2.3.0 에서 확인된 두 가지 제약 (중요) ──────────────────────────
+#  1. `event:` 키가 없으면 트리거는 **로드 단계에서 버려진다**.
+#     `StoryConfigStore.loadTrigger` 의 `getString("event")` 가 null 이면
+#     곧바로 `return null` 이고 `loadTriggers` 가 버린다.
+#     → `type: MANUAL` 이어도 `event:` 가 반드시 있어야 등록된다.
+#  2. 필터는 트리거 최상위가 아니라 **`filters:` 하위 섹션**에 둔다.
+#     인식 키: block / item / mob / quest / cutscene / cutsceneKey /
+#             cutsceneReason / container / armor
+#     값은 소문자로 정규화되어 비교된다.
+#
+#  ── 이벤트 승격법 ───────────────────────────────────────────────────────
+#    아래 각 trigger 의 TODO 를 채운 뒤 `type: MANUAL` → `type: EVENT` 로 바꾸면
+#    그 즉시 자동으로 발동한다. 그때는 필터를 반드시 맞출 것 — 필터가 비면
+#    해당 이벤트가 발생하는 모든 순간에 시그널이 발화되어 엉뚱한 퀘스트가 진행된다.
+#
+#    ※ MANUAL + enable:true 는 자동으로 절대 발동하지 않는다. 그래서 미확정
+#      항목도 켜둔 채 검증할 수 있다.
+#    ※ story 는 `enable: false` 트리거를 목록에도 띄우지도 실행도 하지 않으므로
+#      전부 `enable: true` 로 둔다.
+#
+#  ── story 가 지원하는 이벤트 키 전수 (클래스 상수 풀 + STORY_GUIDE.md) ─────
+#    block_break  block_interact_chest  cutscene_fire  cutscene_end
+#    customcrafting_craft  itemsadder_item_pickup  itemsadder_item_equip
+#    mythicmobs_mob_death  story_done
+#    towny_town_create  towny_town_claim  towny_town_unclaim
+#    towny_town_add_resident  towny_town_remove_resident
+#    towny_nation_create  towny_town_transaction  towny_nation_transaction
+#    quests_quest_complete   ← 이 서버에선 비활성 (Quest 1.1.1 이 해당 이벤트 없음)
+#
+#  ── 현재 상태 ──────────────────────────────────────────────────────────
+#    승격 완료 1개 / TODO 8개. TODO 항목은 실제 컷씬 키·블록·몹 ID 라
+#    콘텐츠를 만든 사람이 정할 값이라 여기서 추측으로 채우지 않았다.
+#    채워질 때까지 `__todo_*__` 필터가 절대 매칭되지 않으므로 안전하다.
+# ============================================================================
+
+id: arcana-signal-bus
+name: "Arcana Signal Bus (Quest custom:signal 발화)"
+enable: true
+
+triggers:
+
+  # ── 확정: Chapter 2 ─────────────────────────────────────────────────────
+  # 마을 생성 = chapter2a_found_town. 1:1 대응이라 필터 불필요.
+  - id: player-town-created
+    name: 마을 생성 → player_town
+    enable: true
+    type: EVENT
+    event: towny_town_create
+    description: 플레이어가 Towny 마을을 생성하면 chapter2a_found_town 을 진행시킨다.
+    actions:
+      commandsEnable: true
+      commands:
+        - "arcana signal player_town 1 {player}"
+
+  # ── Chapter 1 ──────────────────────────────────────────────────────────
+  - id: memory-wipe-cutscene
+    name: 기억 소거 컷씬 종료 → memory_wipe
+    enable: true
+    type: MANUAL
+    event: cutscene_end
+    description: 기억 소거 컷씬이 정상 종료했을 때 chapter1_memory_wipe 를 진행시킨다.
+    filters:
+      # TODO: 실제 컷씬 키로 교체 (CutThin 컷씬 설정의 키)
+      cutscene: __todo_memory_wipe__
+      cutsceneReason: COMPLETED
+    actions:
+      commandsEnable: true
+      commands:
+        - "arcana signal memory_wipe 1 {player}"
+
+  - id: wilderness-awakening-cutscene
+    name: 야생지 각성 컷씬 종료 → wilderness_awakening
+    enable: true
+    type: MANUAL
+    event: cutscene_end
+    description: 야생지 각성 컷씬이 정상 종료했을 때 chapter1_wilderness_awakening 을 진행시킨다.
+    filters:
+      # TODO: 실제 컷씬 키로 교체
+      cutscene: __todo_wilderness_awakening__
+      cutsceneReason: COMPLETED
+    actions:
+      commandsEnable: true
+      commands:
+        - "arcana signal wilderness_awakening 1 {player}"
+
+  - id: house-chest-opened
+    name: 집 상자 개봉 → player_house_chest
+    enable: true
+    type: MANUAL
+    event: block_interact_chest
+    description: 플레이어가 집 안 상자를 열었을 때 chapter1_caught_hiding 을 진행시킨다.
+    filters:
+      # ⚠ story 의 block_interact_chest 에는 좌표/월드 필터가 없다.
+      #   filters.container 로 상자 종류만 좁힐 수 있다.
+      # TODO: (a) container: CHEST 로 좁히거나
+      #       (b) 특정 상자만 남기려면 ArcanaSignalBridge 에 좌표 필터 추가.
+      #   어느 쪽이든 확정 전까지는 절대 매칭되지 않도록 유지.
+      container: __todo_house_chest__
+    actions:
+      commandsEnable: true
+      commands:
+        - "arcana signal player_house_chest 1 {player}"
+
+  - id: fountain-cleaned
+    name: 광장 분수 정리 → town_square_fountain
+    enable: true
+    type: MANUAL
+    event: block_break
+    description: 광장 분수를 정리하면 chapter1_clean_fountain 을 진행시킨다.
+    filters:
+      # TODO: 분수를 구성하는 블록으로 교체 (예: WATER_BUCKET / LIGHT_BLUE_WOOL 등)
+      #   amount 도 "몇 개를 부숴야 끝인가" 에 맞춰 조정.
+      block: __todo_fountain__
+    actions:
+      commandsEnable: true
+      commands:
+        - "arcana signal town_square_fountain 1 {player}"
+
+  - id: village-gate-crossed
+    name: 마을 문 통과(도주) → village_gate
+    enable: true
+    type: MANUAL
+    event: block_interact_chest
+    description: 마을 문을 넘어 도주/추방 비트가 서면 chapter1_flee_and_exile 을 진행시킨다.
+    filters:
+      # ⚠ story 에 "영역 진입/이동" 이벤트가 없다. 이 판정은 story 로는 불가능하다.
+      # TODO: 아래 중 하나로 방식을 정한다.
+      #   (a) 문 게이트 몹을 쓰고 mythicmobs_mob_death + mob: <게이트 몹 ID>
+      #   (b) WorldGuard 영역 이벤트 — story 에 브리지가 없으므로
+      #       ArcanaSignalBridge 에 리스너 추가 필요
+      #   (c) 개방 장치(레버/상자) interaction
+      # 지금은 (c) 라고 가정해 이벤트를 둔 상태이며 필터는 절대 매칭되지 않는다.
+      container: __todo_village_gate__
+    actions:
+      commandsEnable: true
+      commands:
+        - "arcana signal village_gate 1 {player}"
+
+  - id: village-jail-escaped
+    name: 마을 감옥 탈출 → village_jail
+    enable: true
+    type: MANUAL
+    event: mythicmobs_mob_death
+    description: 감옥 탈출을 판정하는 몹이 죽으면 chapter1_prison_escape 를 진행시킨다.
+    filters:
+      # TODO: 탈출 판정 몹의 실제 MythicMobs ID 로 교체.
+      #   탈출을 "경비 처치"로 볼지 "문 열기"로 볼지는 스토리 설계에 맞춰 정한다.
+      mob: __todo_jail__
+    actions:
+      commandsEnable: true
+      commands:
+        - "arcana signal village_jail 1 {player}"
+
+  # ── Chapter 4 ──────────────────────────────────────────────────────────
+  - id: corrupted-portal-opened
+    name: 오염된 마을 포털 개방 → corrupted_village_portal
+    enable: true
+    type: MANUAL
+    event: cutscene_end
+    description: 오염된 마을 포털 개방 컷씬이 종료되면 chapter4_intro 를 진행시킨다.
+    filters:
+      # TODO: 포털 개방 컷씬 키로 교체.
+      #   (개방 장치를 interaction 으로 판정한다면 cutscene_end 대신
+      #    block_interact_chest 로 이벤트를 바꾼다.)
+      cutscene: __todo_corrupted_portal__
+      cutsceneReason: COMPLETED
+    actions:
+      commandsEnable: true
+      commands:
+        - "arcana signal corrupted_village_portal 1 {player}"
+
+  - id: ending-cutscene
+    name: 엔딩 컷씬 종료 → server_saved_ending
+    enable: true
+    type: MANUAL
+    event: cutscene_end
+    description: 엔딩 컷씬이 정상 종료되면 chapter4_ending 을 진행시킨다.
+    filters:
+      # TODO: 엔딩 컷씬 키로 교체.
+      #   엔딩이므로 cutsceneReason: COMPLETED 로 끝까지 재생돼야 하는 게 안전하다.
+      cutscene: __todo_ending__
+      cutsceneReason: COMPLETED
+    actions:
+      commandsEnable: true
+      commands:
+        - "arcana signal server_saved_ending 1 {player}"

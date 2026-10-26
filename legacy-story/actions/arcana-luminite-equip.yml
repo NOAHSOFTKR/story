@@ -1,30 +1,36 @@
+# Source: NOAHSOFTKR/story actions/arcana-luminite-equip.yml (schema 2.2.1 → 2.3.0 변환)
+# Chapter 4 중반. 루미네이트 세트 풀착용 감지 → EVENT 확정.
+# 2.3.0 규칙: itemsadder_item_equip 는 armor 4종 전부 필수. 실존 ID 사용 확인됨
+# (plny_luminite_set 네임스페이스, 서버 ItemsAdder contents에 존재).
 id: arcana-luminite-equip
 name: "[아르카나] 빛의 힘을 담다"
 enable: true
 nextStory: arcana-final-boss
-trigger:
-  id: luminite-equip
-  name: Luminite armor equipped
-  enable: true
-  event: itemsadder_item_equip
-  description: 플레이어가 루미네이트 세트를 모두 착용했을 때 발동
-
-actions:
-  message:
-    id: message-equip
+triggers:
+  - id: luminite-equip
+    name: Luminite armor equipped
     enable: true
-    content: "&b[아르카나 - 코델리아] &f훌륭해. 이제 놈들의 마법은 너에게 통하지 않을 거다. 하지만 촌장은 마을 지하 깊은 곳에 끔찍한 것을 숨겨두고 있어."
-    toSend: triggeredPlayer
-  
-  message-warning:
-    id: message-final
-    enable: true
-    content: "&c[최종 경고] &f네가 세운 국가의 힘을 모으고, 모든 것을 원래대로 되돌려 놔야 해. 우리의 고향이었던 그 거짓된 낙원으로 진격하라."
-    toSend: triggeredPlayer
-  
-  commandsEnable: true
-  commands:
-  - "title {player} title {\"text\":\"루미네이트 세트 완성!\",\"color\":\"aqua\"}"
-  - "subtitle {player} subtitle {\"text\":\"이제 당신은 세계를 변화시킬 준비가 되었다.\",\"color\":\"light_purple\"}"
-  - "execute at {player} run particle minecraft:glow ~ ~ ~ 0.5 0.5 0.5 1 20 force"
-  - "playsound minecraft:entity.ender_dragon.growl player {player} ~ ~ ~ 1 1"
+    type: EVENT
+    event: itemsadder_item_equip
+    description: 플레이어가 루미네이트 세트를 모두 착용했을 때 발동
+    armor.helmet: plny_luminite_set:luminite_sethelmet
+    armor.chestplate: plny_luminite_set:luminite_setchestplate
+    armor.leggings: plny_luminite_set:luminite_setleggings
+    armor.boots: plny_luminite_set:luminite_setboots
+    actions:
+      message-equip:
+        id: message-equip
+        enable: true
+        content: "&b[아르카나 - 코델리아] &f훌륭해. 이제 놈들의 마법은 너에게 통하지 않을 거다. 하지만 촌장은 마을 지하 깊은 곳에 끔찍한 것을 숨겨두고 있어."
+        toSend: triggeredPlayer
+      message-warning:
+        id: message-final
+        enable: true
+        content: "&c[최종 경고] &f네가 세운 국가의 힘을 모으고, 모든 것을 원래대로 되돌려 놔야 해. 우리의 고향이었던 그 거짓된 낙원으로 진격하라."
+        toSend: triggeredPlayer
+      commandsEnable: true
+      commands:
+        - "title {player} title {\"text\":\"루미네이트 세트 완성!\",\"color\":\"aqua\"}"
+        - "title {player} subtitle {\"text\":\"이제 당신은 세계를 변화시킬 준비가 되었다.\",\"color\":\"light_purple\"}"
+        - "execute at {player} run particle minecraft:glow ~ ~ ~ 0.5 0.5 0.5 1 20 force"
+        - "playsound minecraft:entity.ender_dragon.growl player {player} ~ ~ ~ 1 1"

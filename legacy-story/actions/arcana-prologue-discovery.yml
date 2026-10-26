@@ -1,22 +1,28 @@
+# Source: NOAHSOFTKR/story actions/arcana-prologue-discovery.yml (schema 2.2.1 → 2.3.0 변환)
+# Chapter 1 프롤로그. 루미네이트 원석 첫 줍기.
+# MANUAL: 루미네이트 원석 아이템 ID가 서버에 없음 (plny_luminite_set에 ore 없음).
+# TODO: 원석 아이템이 생기면 filters.item 에 ID 지정 후 type: EVENT 로 승격.
 id: arcana-prologue-discovery
 name: "[아르카나] 운명의 발견"
 enable: true
 nextStory: arcana-prologue-exile
-trigger:
-  id: luminite-pickup
-  name: Luminite Ore Pickup
-  enable: true
-  event: itemsadder_item_pickup
-  description: 플레이어가 루미네이트 원석을 처음 주웠을 때 발동
-
-actions:
-  message:
-    id: message-discovery
+triggers:
+  - id: luminite-pickup
+    name: Luminite Ore Pickup
     enable: true
-    content: "&f[시스템] &i이 따뜻하고 매혹적인 빛... 왠지 다른 사람에게 들키면 안 될 것 같다."
-    toSend: triggeredPlayer
-  
-  commandsEnable: true
-  commands:
-  - "title {player} actionbar {\"text\":\"&6영롱하게 빛나는 루미네이트를 발견했습니다.\",\"color\":\"gold\"}"
-  - "playsound minecraft:block.amethyst_block.hit player {player} ~ ~ ~ 1 1.2"
+    type: MANUAL
+    event: itemsadder_item_pickup
+    description: 플레이어가 루미네이트 원석을 처음 주웠을 때 발동
+    filters:
+      # TODO: 실제 원석 아이템 ID (예: namespace:luminite_ore)
+      item: __todo_luminite_ore__
+    actions:
+      message:
+        id: message-discovery
+        enable: true
+        content: "&f[시스템] &i이 따뜻하고 매혹적인 빛... 왠지 다른 사람에게 들키면 안 될 것 같다."
+        toSend: triggeredPlayer
+      commandsEnable: true
+      commands:
+        - "title {player} actionbar {\"text\":\"영롱하게 빛나는 루미네이트를 발견했습니다.\",\"color\":\"gold\"}"
+        - "playsound minecraft:block.amethyst_block.hit player {player} ~ ~ ~ 1 1.2"
