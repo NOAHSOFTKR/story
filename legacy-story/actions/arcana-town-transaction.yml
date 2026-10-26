@@ -1,19 +1,20 @@
+# Source: NOAHSOFTKR/story actions/arcana-town-transaction.yml (schema 2.2.1 → 2.3.0 변환)
+# 단독 파일 (nextStory null). 세금/거래 발생 시 flavor 메시지. EVENT 유지 (원본 설계).
+# ※ 발동 빈도 높음. 스팸으로 느껴지면 enable: false 또는 MANUAL 전환.
 id: arcana-town-transaction
 name: "[아르카나] 왕실의 조세"
 enable: true
-nextStory: null
-trigger:
-  id: town-transaction
-  name: Town tax/transaction
-  enable: true
-  event: towny_town_transaction
-  description: 마을의 세금이나 거래가 발생했을 때 발동
-
-actions:
-  message:
-    id: message-tax
+triggers:
+  - id: town-transaction
+    name: Town tax/transaction
     enable: true
-    content: "&5[아르카나] &f마을의 자금이 변동했습니다. 모든 유지비는 생존을 위해 필요한 것입니다."
-    toSend: triggeredPlayer
-  
-  commandsEnable: false
+    type: EVENT
+    event: towny_town_transaction
+    description: 마을의 세금이나 거래가 발생했을 때 발동
+    actions:
+      message:
+        id: message-tax
+        enable: true
+        content: "&5[아르카나] &f마을의 자금이 변동했습니다. 모든 유지비는 생존을 위해 필요한 것입니다."
+        toSend: triggeredPlayer
+      commandsEnable: false
